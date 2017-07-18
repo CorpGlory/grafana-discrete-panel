@@ -82,6 +82,9 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
 
           _this.data = null;
 
+          console.log(_this.$tooltip);
+          console.log('hey');
+
           // Set and populate defaults
           var panelDefaults = {
             display: 'timeline',
@@ -644,9 +647,9 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
             var body = '<div class="graph-tooltip-time">' + val + '</div>';
 
             body += "<center>";
-            body += this.dashboard.formatDate(moment(from)) + "<br/>";
-            body += "to<br/>";
-            body += this.dashboard.formatDate(moment(to)) + "<br/><br/>";
+            body += this.dashboard.formatDate(moment(from));
+            body += " to ";
+            body += this.dashboard.formatDate(moment(to));
             body += moment.duration(time).humanize() + "<br/>";
             body += "</center>";
 

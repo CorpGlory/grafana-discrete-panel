@@ -17,6 +17,9 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
     this.data = null;
 
+    console.log(this.$tooltip);
+    console.log('hey');
+
     // Set and populate defaults
     var panelDefaults = {
       display: 'timeline',
@@ -587,9 +590,9 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     var body = '<div class="graph-tooltip-time">'+ val + '</div>';
 
     body += "<center>"
-    body += this.dashboard.formatDate( moment(from) ) + "<br/>";
-    body += "to<br/>";
-    body += this.dashboard.formatDate( moment(to) ) + "<br/><br/>";
+    body += this.dashboard.formatDate( moment(from) );
+    body += " to ";
+    body += this.dashboard.formatDate( moment(to) )
     body += moment.duration(time).humanize() + "<br/>";
     body += "</center>"
 
