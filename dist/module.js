@@ -127,10 +127,10 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
         }, {
           key: 'onInitEditMode',
           value: function onInitEditMode() {
-            this.addEditorTab('Options', 'public/plugins/natel-discrete-panel/editor.html', 1);
-            this.addEditorTab('Legend', 'public/plugins/natel-discrete-panel/legend.html', 3);
-            this.addEditorTab('Colors', 'public/plugins/natel-discrete-panel/colors.html', 4);
-            this.addEditorTab('Mappings', 'public/plugins/natel-discrete-panel/mappings.html', 5);
+            this.addEditorTab('Options', 'public/plugins/natel-discrete-panel/editor.options.html', 1);
+            this.addEditorTab('Legend', 'public/plugins/natel-discrete-panel/editor.legend.html', 3);
+            this.addEditorTab('Colors', 'public/plugins/natel-discrete-panel/editor.colors.html', 4);
+            this.addEditorTab('Mappings', 'public/plugins/natel-discrete-panel/editor.mappings.html', 5);
             this.editorTabIndex = 1;
             this.refresh();
           }
@@ -142,8 +142,6 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
             if (this.data == null || !this.context) {
               return;
             }
-
-            //   console.log( 'render', this.data);
 
             var rect = this.wrap.getBoundingClientRect();
 
@@ -483,8 +481,6 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
             var _this3 = this;
 
             $(this.canvas).css('cursor', 'pointer');
-
-            //    console.log('GOT', dataList);
 
             var data = [];
             _.forEach(dataList, function (metric) {

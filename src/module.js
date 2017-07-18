@@ -25,8 +25,8 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         { value: 'null', op: '=', text: 'N/A' }
       ],
       mappingTypes: [
-        {name: 'value to text', value: 1},
-        {name: 'range to text', value: 2},
+        { name: 'value to text', value: 1 },
+        { name: 'range to text', value: 2 },
       ],
       rangeMaps: [
         { from: 'null', to: 'null', text: 'N/A' }
@@ -67,20 +67,19 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   }
 
   onInitEditMode() {
-    this.addEditorTab('Options', 'public/plugins/natel-discrete-panel/editor.html',1);
-    this.addEditorTab('Legend', 'public/plugins/natel-discrete-panel/legend.html',3);
-    this.addEditorTab('Colors', 'public/plugins/natel-discrete-panel/colors.html',4);
-    this.addEditorTab('Mappings', 'public/plugins/natel-discrete-panel/mappings.html', 5);
+    this.addEditorTab('Options', 'public/plugins/natel-discrete-panel/editor.options.html',1);
+    this.addEditorTab('Legend', 'public/plugins/natel-discrete-panel/editor.legend.html',3);
+    this.addEditorTab('Colors', 'public/plugins/natel-discrete-panel/editor.colors.html',4);
+    this.addEditorTab('Mappings', 'public/plugins/natel-discrete-panel/editor.mappings.html', 5);
     this.editorTabIndex = 1;
     this.refresh();
   }
 
   onRender() {
+
     if(this.data == null ||  !(this.context) ) {
       return;
     }
-
- //   console.log( 'render', this.data);
 
     var rect = this.wrap.getBoundingClientRect();
 
@@ -282,7 +281,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     }
   }
 
-
   showLegandTooltip(pos, info) {
     var body = '<div class="graph-tooltip-time">'+ info.val +'</div>';
 
@@ -430,8 +428,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   onDataReceived(dataList) {
     $(this.canvas).css( 'cursor', 'pointer' );
-
-//    console.log('GOT', dataList);
 
     var data = [];
     _.forEach(dataList, (metric) => {
@@ -648,8 +644,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           this.showTooltip( evt, hover, isExternal );
         }
         this.onRender(); // refresh the view
-      }
-      else if(!isExternal) {
+      } else if(!isExternal) {
         if(this.panel.display == 'stacked') {
           hover = this.data[j].legendInfo[0];
           for(var i=0; i<this.data[j].legendInfo.length; i++) {
