@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'moment', 'angular', 'app/core/utils/kbn', 'app/core/app_events'], function (_export, _context) {
+System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app_events', 'app/core/utils/kbn', 'lodash', 'moment', 'angular'], function (_export, _context) {
   "use strict";
 
-  var config, CanvasPanelCtrl, DistinctPoints, _, moment, angular, kbn, appEvents, _createClass, DiscretePanelCtrl;
+  var CanvasPanelCtrl, DistinctPoints, config, appEvents, kbn, _, moment, angular, _createClass, DiscretePanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -36,22 +36,22 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
   }
 
   return {
-    setters: [function (_appCoreConfig) {
-      config = _appCoreConfig.default;
-    }, function (_canvasMetric) {
+    setters: [function (_canvasMetric) {
       CanvasPanelCtrl = _canvasMetric.CanvasPanelCtrl;
     }, function (_points) {
       DistinctPoints = _points.default;
+    }, function (_appCoreConfig) {
+      config = _appCoreConfig.default;
+    }, function (_appCoreApp_events) {
+      appEvents = _appCoreApp_events.default;
+    }, function (_appCoreUtilsKbn) {
+      kbn = _appCoreUtilsKbn.default;
     }, function (_lodash) {
       _ = _lodash.default;
     }, function (_moment) {
       moment = _moment.default;
     }, function (_angular) {
       angular = _angular.default;
-    }, function (_appCoreUtilsKbn) {
-      kbn = _appCoreUtilsKbn.default;
-    }, function (_appCoreApp_events) {
-      appEvents = _appCoreApp_events.default;
     }],
     execute: function () {
       _createClass = function () {
@@ -82,9 +82,6 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
 
           _this.data = null;
 
-          console.log(_this.$tooltip);
-          console.log('hey');
-
           // Set and populate defaults
           var panelDefaults = {
             display: 'timeline',
@@ -108,6 +105,7 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
             highlightOnMouseover: true,
             legendSortBy: '-ms'
           };
+
           _.defaults(_this.panel, panelDefaults);
           _this.externalPT = false;
 
@@ -660,7 +658,7 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
               pageY = rect.top + evt.pos.panelRelY * rect.height;
               if (pageY < 0 || pageY > $(window).innerHeight()) {
                 // Skip Hidden tooltip
-                this.$tooltip.detach();
+                this.clearTT();
                 return;
               }
               pageY += $(window).scrollTop();
@@ -723,7 +721,7 @@ System.register(['app/core/config', './canvas-metric', './points', 'lodash', 'mo
                 }
               }
             } else {
-              this.$tooltip.detach(); // make sure it is hidden
+              this.clearTT(); // make sure it is hidden
             }
           }
         }, {

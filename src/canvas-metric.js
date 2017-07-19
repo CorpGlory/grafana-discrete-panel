@@ -1,5 +1,5 @@
 
-import {MetricsPanelCtrl} from  'app/plugins/sdk';
+import { MetricsPanelCtrl } from  'app/plugins/sdk';
 
 import _ from 'lodash';
 import moment from 'moment';
@@ -74,8 +74,6 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
     ctx.textAlign = 'left';
     ctx.fillText("Mouse @ "+time, 10, centerV);
 
-
-
     if(this.mouse.position != null ) {
       if(this.mouse.down != null) {
         var xmin = Math.min( this.mouse.position.x, this.mouse.down.x);
@@ -92,8 +90,7 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
         ctx.fillRect(xmax, 0, width, height);
         ctx.fill();
         ctx.globalCompositeOperation = 'source-over';
-      }
-      else {
+      } else {
         ctx.strokeStyle = '#111';
         ctx.beginPath();
         ctx.moveTo(this.mouse.position.x, 0);
@@ -171,7 +168,7 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
       };
       appEvents.emit('graph-hover', info);
       if(this.mouse.down != null) {
-        $(this.canvas).css( 'cursor', 'col-resize' );
+        $(this.canvas).css('cursor', 'col-resize');
       }
     }, false);
 
@@ -196,19 +193,18 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
         this.$tooltip.detach();
         appEvents.emit('graph-hover-clear');
       }
-      $(this.canvas).css( 'cursor', 'pointer' );
+      $(this.canvas).css('cursor', 'pointer');
     }, false);
 
     this.canvas.addEventListener('mouseup', (evt) => {
       this.$tooltip.detach();
       var up = this.getMousePosition(evt);
       if(this.mouse.down != null) {
-        if(up.x == this.mouse.down.x && up.y == this.mouse.down.y ) {
+        if(up.x == this.mouse.down.x && up.y == this.mouse.down.y) {
           this.mouse.position = null;
           this.mouse.down = null;
           this.onMouseClicked(up);
-        }
-        else {
+        } else {
           var min = Math.min(this.mouse.down.ts, up.ts);
           var max = Math.max(this.mouse.down.ts, up.ts);
           var range = {from: moment.utc(min), to: moment.utc(max) };
@@ -227,7 +223,7 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
       this.$tooltip.detach();
       appEvents.emit('graph-hover-clear');
 
-      console.log( 'TODO, ZOOM OUT' );
+      console.log('TODO, ZOOM OUT');
 
     }, true);
 

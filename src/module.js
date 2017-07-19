@@ -1,14 +1,14 @@
-import config from 'app/core/config';
-
-import {CanvasPanelCtrl} from './canvas-metric';
+import { CanvasPanelCtrl } from './canvas-metric';
 import DistinctPoints from './points';
+
+import config from 'app/core/config';
+import appEvents from 'app/core/app_events';
+import kbn from 'app/core/utils/kbn';
 
 import _ from 'lodash';
 import moment from 'moment';
 import angular from 'angular';
-import kbn from 'app/core/utils/kbn';
 
-import appEvents from 'app/core/app_events';
 
 class DiscretePanelCtrl extends CanvasPanelCtrl {
 
@@ -16,9 +16,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     super($scope, $injector, $q);
 
     this.data = null;
-
-    console.log(this.$tooltip);
-    console.log('hey');
 
     // Set and populate defaults
     var panelDefaults = {
@@ -52,6 +49,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       highlightOnMouseover: true,
       legendSortBy: '-ms'
     };
+
     _.defaults(this.panel, panelDefaults);
     this.externalPT = false;
 
@@ -590,9 +588,9 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     var body = '<div class="graph-tooltip-time">'+ val + '</div>';
 
     body += "<center>"
-    body += this.dashboard.formatDate( moment(from) );
+    body += this.dashboard.formatDate(moment(from));
     body += " to ";
-    body += this.dashboard.formatDate( moment(to) )
+    body += this.dashboard.formatDate(moment(to))
     body += moment.duration(time).humanize() + "<br/>";
     body += "</center>"
 
@@ -603,7 +601,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       pageY = rect.top + (evt.pos.panelRelY * rect.height);
       if(pageY < 0 || pageY > $(window).innerHeight()) {
         // Skip Hidden tooltip
-        this.$tooltip.detach();
+        this.clearTT();
         return;
       }
       pageY += $(window).scrollTop();
@@ -611,8 +609,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       var elapsed = this.range.to - this.range.from;
       var pX = (evt.pos.x - this.range.from) / elapsed;
       pageX = rect.left + (pX * rect.width);
-    }
-    else {
+    } else {
       pageX = evt.evt.pageX;
       pageY = evt.evt.pageY;
     }
@@ -624,17 +621,17 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this.externalPT = false;
     if(this.data) {
       var hover = null;
-      var j = Math.floor(this.mouse.position.y/this.panel.rowHeight);
+      var j = Math.floor(this.mouse.position.y / this.panel.rowHeight);
       if (j < 0) {
         j = 0;
       }
       if (j >= this.data.length) {
-        j = this.data.length-1;
+        j = this.data.length - 1;
       }
 
       if(this.isTimeline) {
         hover = this.data[j].changes[0];
-        for(var i=0; i<this.data[j].changes.length; i++) {
+        for(var i = 0; i < this.data[j].changes.length; i++) {
           if(this.data[j].changes[i].start > this.mouse.position.ts) {
             break;
           }
@@ -650,7 +647,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       } else if(!isExternal) {
         if(this.panel.display == 'stacked') {
           hover = this.data[j].legendInfo[0];
-          for(var i=0; i<this.data[j].legendInfo.length; i++) {
+          for(var i = 0; i < this.data[j].legendInfo.length; i++) {
             if(this.data[j].legendInfo[i].x > this.mouse.position.x) {
               break;
             }
@@ -665,16 +662,15 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           }
         }
       }
-    }
-    else {
-      this.$tooltip.detach(); // make sure it is hidden
+    } else {
+      this.clearTT(); // make sure it is hidden
     }
   }
 
   onMouseClicked(where) {
     var pt = this.hoverPoint;
     if(pt && pt.start) {
-      var range = {from: moment.utc(pt.start), to: moment.utc(pt.start+pt.ms) };
+      var range = { from: moment.utc(pt.start), to: moment.utc(pt.start + pt.ms) };
       this.timeSrv.setTime(range);
       this.clear();
     }
@@ -694,10 +690,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this.render();
   }
 }
+
 DiscretePanelCtrl.templateUrl = 'module.html';
 
-export {
-  DiscretePanelCtrl as PanelCtrl
-};
-
-
+export { DiscretePanelCtrl as PanelCtrl };
