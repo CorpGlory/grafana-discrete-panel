@@ -1,5 +1,6 @@
 import { CanvasPanelCtrl } from './canvas-metric';
 import DistinctPoints from './points';
+import { Tooltips } from './tooltips';
 
 import config from 'app/core/config';
 import appEvents from 'app/core/app_events';
@@ -16,6 +17,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     super($scope, $injector, $q);
 
     this.data = null;
+    this._tooltips = new Tooltips();
 
     // Set and populate defaults
     var panelDefaults = {
@@ -282,7 +284,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     }
   }
 
-  showLegandTooltip(pos, info) {
+  showLegendTooltip(pos, info) {
     var body = '<div class="graph-tooltip-time">'+ info.val +'</div>';
 
     body += "<center>";
@@ -300,6 +302,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   clearTT() {
     this.$tooltip.detach();
+    this._tooltips.detach();
   }
 
   formatValue(val, stats) {
@@ -573,19 +576,13 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   //------------------
 
   showTooltip(evt, point, isExternal) {
+
     var from = point.start;
     var to = point.start + point.ms;
     var time = point.ms;
     var val = point.val;
 
-    if(this.mouse.down != null) {
-      from = Math.min(this.mouse.down.ts, this.mouse.position.ts);
-      to   = Math.max(this.mouse.down.ts, this.mouse.position.ts);
-      time = to - from;
-      val = "Zoom To:";
-    }
-
-    var body = '<div class="graph-tooltip-time">'+ val + '</div>';
+    var body = '<div class="graph-tooltip-time">' + val + '</div>';
 
     body += "<center>"
     body += this.dashboard.formatDate(moment(from));
@@ -619,52 +616,71 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   onGraphHover(evt, showTT, isExternal) {
     this.externalPT = false;
-    if(this.data) {
-      var hover = null;
-      var j = Math.floor(this.mouse.position.y / this.panel.rowHeight);
-      if (j < 0) {
-        j = 0;
-      }
-      if (j >= this.data.length) {
-        j = this.data.length - 1;
-      }
+    if(!this.data) {
+      this.clearTT(); // make sure it is hidden
+      this.onRender(); // refresh the view
+      return;
+    }
 
-      if(this.isTimeline) {
-        hover = this.data[j].changes[0];
-        for(var i = 0; i < this.data[j].changes.length; i++) {
-          if(this.data[j].changes[i].start > this.mouse.position.ts) {
+    if(this.mouse.down != null) {
+      var from = Math.min(this.mouse.down.ts, this.mouse.position.ts);
+      var to   = Math.max(this.mouse.down.ts, this.mouse.position.ts);
+      var time = to - from;
+      
+      var point = {
+        start: from,
+        ms: time,
+        val: "Zoom To:" 
+      };
+
+      this.showTooltip(evt, point, isExternal);
+      this.onRender(); // refresh the view
+      return;
+    }
+    
+    var hover = null;
+    var j = Math.floor(this.mouse.position.y / this.panel.rowHeight);
+    if (j < 0) {
+      j = 0;
+    }
+    if (j >= this.data.length) {
+      j = this.data.length - 1;
+    }
+
+    if(this.isTimeline) {
+      hover = this.data[j].changes[0];
+      for(var i = 0; i < this.data[j].changes.length; i++) {
+        if(this.data[j].changes[i].start > this.mouse.position.ts) {
+          break;
+        }
+        hover = this.data[j].changes[i];
+      }
+      this.hoverPoint = hover;
+
+      if(showTT) {
+        this.externalPT = isExternal;
+        this.showTooltip(evt, hover, isExternal);
+      }
+      this.onRender(); // refresh the view
+    } else if(!isExternal) {
+      if(this.panel.display == 'stacked') {
+        hover = this.data[j].legendInfo[0];
+        for(var i = 0; i < this.data[j].legendInfo.length; i++) {
+          if(this.data[j].legendInfo[i].x > this.mouse.position.x) {
             break;
           }
-          hover = this.data[j].changes[i];
+          hover = this.data[j].legendInfo[i];
         }
         this.hoverPoint = hover;
+        this.onRender(); // refresh the view
 
         if(showTT) {
           this.externalPT = isExternal;
-          this.showTooltip( evt, hover, isExternal );
-        }
-        this.onRender(); // refresh the view
-      } else if(!isExternal) {
-        if(this.panel.display == 'stacked') {
-          hover = this.data[j].legendInfo[0];
-          for(var i = 0; i < this.data[j].legendInfo.length; i++) {
-            if(this.data[j].legendInfo[i].x > this.mouse.position.x) {
-              break;
-            }
-            hover = this.data[j].legendInfo[i];
-          }
-          this.hoverPoint = hover;
-          this.onRender(); // refresh the view
-
-          if(showTT) {
-            this.externalPT = isExternal;
-            this.showLegandTooltip(evt.evt, hover);
-          }
+          this.showLegendTooltip(evt.evt, hover);
         }
       }
-    } else {
-      this.clearTT(); // make sure it is hidden
     }
+
   }
 
   onMouseClicked(where) {

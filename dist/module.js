@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app_events', 'app/core/utils/kbn', 'lodash', 'moment', 'angular'], function (_export, _context) {
+System.register(['./canvas-metric', './points', './tooltips', 'app/core/config', 'app/core/app_events', 'app/core/utils/kbn', 'lodash', 'moment', 'angular'], function (_export, _context) {
   "use strict";
 
-  var CanvasPanelCtrl, DistinctPoints, config, appEvents, kbn, _, moment, angular, _createClass, DiscretePanelCtrl;
+  var CanvasPanelCtrl, DistinctPoints, Tooltips, config, appEvents, kbn, _, moment, angular, _createClass, DiscretePanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -40,6 +40,8 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
       CanvasPanelCtrl = _canvasMetric.CanvasPanelCtrl;
     }, function (_points) {
       DistinctPoints = _points.default;
+    }, function (_tooltips) {
+      Tooltips = _tooltips.Tooltips;
     }, function (_appCoreConfig) {
       config = _appCoreConfig.default;
     }, function (_appCoreApp_events) {
@@ -81,6 +83,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
           var _this = _possibleConstructorReturn(this, (DiscretePanelCtrl.__proto__ || Object.getPrototypeOf(DiscretePanelCtrl)).call(this, $scope, $injector, $q));
 
           _this.data = null;
+          _this._tooltips = new Tooltips();
 
           // Set and populate defaults
           var panelDefaults = {
@@ -334,8 +337,8 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             }
           }
         }, {
-          key: 'showLegandTooltip',
-          value: function showLegandTooltip(pos, info) {
+          key: 'showLegendTooltip',
+          value: function showLegendTooltip(pos, info) {
             var body = '<div class="graph-tooltip-time">' + info.val + '</div>';
 
             body += "<center>";
@@ -354,6 +357,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
           key: 'clearTT',
           value: function clearTT() {
             this.$tooltip.detach();
+            this._tooltips.detach();
           }
         }, {
           key: 'formatValue',
@@ -630,17 +634,11 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
         }, {
           key: 'showTooltip',
           value: function showTooltip(evt, point, isExternal) {
+
             var from = point.start;
             var to = point.start + point.ms;
             var time = point.ms;
             var val = point.val;
-
-            if (this.mouse.down != null) {
-              from = Math.min(this.mouse.down.ts, this.mouse.position.ts);
-              to = Math.max(this.mouse.down.ts, this.mouse.position.ts);
-              time = to - from;
-              val = "Zoom To:";
-            }
 
             var body = '<div class="graph-tooltip-time">' + val + '</div>';
 
@@ -677,51 +675,69 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
           key: 'onGraphHover',
           value: function onGraphHover(evt, showTT, isExternal) {
             this.externalPT = false;
-            if (this.data) {
-              var hover = null;
-              var j = Math.floor(this.mouse.position.y / this.panel.rowHeight);
-              if (j < 0) {
-                j = 0;
-              }
-              if (j >= this.data.length) {
-                j = this.data.length - 1;
-              }
+            if (!this.data) {
+              this.clearTT(); // make sure it is hidden
+              this.onRender(); // refresh the view
+              return;
+            }
 
-              if (this.isTimeline) {
-                hover = this.data[j].changes[0];
-                for (var i = 0; i < this.data[j].changes.length; i++) {
-                  if (this.data[j].changes[i].start > this.mouse.position.ts) {
+            if (this.mouse.down != null) {
+              var from = Math.min(this.mouse.down.ts, this.mouse.position.ts);
+              var to = Math.max(this.mouse.down.ts, this.mouse.position.ts);
+              var time = to - from;
+
+              var point = {
+                start: from,
+                ms: time,
+                val: "Zoom To:"
+              };
+
+              this.showTooltip(evt, point, isExternal);
+              this.onRender(); // refresh the view
+              return;
+            }
+
+            var hover = null;
+            var j = Math.floor(this.mouse.position.y / this.panel.rowHeight);
+            if (j < 0) {
+              j = 0;
+            }
+            if (j >= this.data.length) {
+              j = this.data.length - 1;
+            }
+
+            if (this.isTimeline) {
+              hover = this.data[j].changes[0];
+              for (var i = 0; i < this.data[j].changes.length; i++) {
+                if (this.data[j].changes[i].start > this.mouse.position.ts) {
+                  break;
+                }
+                hover = this.data[j].changes[i];
+              }
+              this.hoverPoint = hover;
+
+              if (showTT) {
+                this.externalPT = isExternal;
+                this.showTooltip(evt, hover, isExternal);
+              }
+              this.onRender(); // refresh the view
+            } else if (!isExternal) {
+              if (this.panel.display == 'stacked') {
+                hover = this.data[j].legendInfo[0];
+                for (var i = 0; i < this.data[j].legendInfo.length; i++) {
+                  if (this.data[j].legendInfo[i].x > this.mouse.position.x) {
                     break;
                   }
-                  hover = this.data[j].changes[i];
+                  hover = this.data[j].legendInfo[i];
                 }
                 this.hoverPoint = hover;
+                this.onRender(); // refresh the view
 
                 if (showTT) {
                   this.externalPT = isExternal;
-                  this.showTooltip(evt, hover, isExternal);
-                }
-                this.onRender(); // refresh the view
-              } else if (!isExternal) {
-                if (this.panel.display == 'stacked') {
-                  hover = this.data[j].legendInfo[0];
-                  for (var i = 0; i < this.data[j].legendInfo.length; i++) {
-                    if (this.data[j].legendInfo[i].x > this.mouse.position.x) {
-                      break;
-                    }
-                    hover = this.data[j].legendInfo[i];
-                  }
-                  this.hoverPoint = hover;
-                  this.onRender(); // refresh the view
-
-                  if (showTT) {
-                    this.externalPT = isExternal;
-                    this.showLegandTooltip(evt.evt, hover);
-                  }
+                  this.showLegendTooltip(evt.evt, hover);
                 }
               }
-            } else {
-              this.clearTT(); // make sure it is hidden
             }
           }
         }, {
