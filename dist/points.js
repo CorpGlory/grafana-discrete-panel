@@ -34,7 +34,7 @@ System.register(['lodash'], function (_export, _context) {
         };
       }();
 
-      DistinctPoints = function () {
+      _export('DistinctPoints', DistinctPoints = function () {
         function DistinctPoints(name) {
           _classCallCheck(this, DistinctPoints);
 
@@ -68,7 +68,6 @@ System.register(['lodash'], function (_export, _context) {
               if (this.changes.length === 1) {
                 this.asc = ts > this.last.start;
               }
-
               if (ts > this.last.start != this.asc) {
                 console.log('skip out of order point', ts, val);
                 return;
@@ -168,9 +167,9 @@ System.register(['lodash'], function (_export, _context) {
         }]);
 
         return DistinctPoints;
-      }();
+      }());
 
-      _export('default', DistinctPoints);
+      _export('DistinctPoints', DistinctPoints);
     }
   };
 });

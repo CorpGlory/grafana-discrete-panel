@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app_events'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'app/core/app_events', 'lodash', 'moment', 'angular'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, _, moment, angular, appEvents, _createClass, canvasID, CanvasPanelCtrl;
+  var MetricsPanelCtrl, appEvents, _, moment, angular, _createClass, CanvasPanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -38,14 +38,14 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
   return {
     setters: [function (_appPluginsSdk) {
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
+    }, function (_appCoreApp_events) {
+      appEvents = _appCoreApp_events.default;
     }, function (_lodash) {
       _ = _lodash.default;
     }, function (_moment) {
       moment = _moment.default;
     }, function (_angular) {
       angular = _angular.default;
-    }, function (_appCoreApp_events) {
-      appEvents = _appCoreApp_events.default;
     }],
     execute: function () {
       _createClass = function () {
@@ -66,8 +66,6 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
         };
       }();
 
-      canvasID = 1;
-
       _export('CanvasPanelCtrl', CanvasPanelCtrl = function (_MetricsPanelCtrl) {
         _inherits(CanvasPanelCtrl, _MetricsPanelCtrl);
 
@@ -82,8 +80,8 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
             position: null,
             down: null
           };
-          _this.canvasID = canvasID++;
-          _this.$tooltip = $('<div id="tooltip.' + canvasID + '" class="graph-tooltip">');
+
+          _this.$tooltip = $('<div class="graph-tooltip">');
 
           _this.events.on('panel-initialized', _this.onPanelInitalized.bind(_this));
           _this.events.on('refresh', _this.onRefresh.bind(_this));
@@ -174,6 +172,7 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
           key: 'clearTT',
           value: function clearTT() {
             this.$tooltip.detach();
+            //this._tooltips.detach();
           }
         }, {
           key: 'getMousePosition',
@@ -220,8 +219,6 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
             $(this.canvas).css('cursor', 'pointer');
             $(this.wrap).css('width', '100%');
 
-            //  console.log( 'link', this );
-
             this.context = this.canvas.getContext('2d');
             this.canvas.addEventListener('mousemove', function (evt) {
               _this2.mouse.position = _this2.getMousePosition(evt);
@@ -247,7 +244,7 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
               if (_this2.mouse.down == null) {
                 _this2.mouse.position = null;
                 _this2.onRender();
-                _this2.$tooltip.detach();
+                _this2.clearTT();
                 appEvents.emit('graph-hover-clear');
               }
             }, false);
@@ -261,14 +258,14 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
                 _this2.mouse.position = null;
                 _this2.mouse.down = null;
                 _this2.onRender();
-                _this2.$tooltip.detach();
+                _this2.clearTT();
                 appEvents.emit('graph-hover-clear');
               }
               $(_this2.canvas).css('cursor', 'pointer');
             }, false);
 
             this.canvas.addEventListener('mouseup', function (evt) {
-              _this2.$tooltip.detach();
+              _this2.clearTT();
               var up = _this2.getMousePosition(evt);
               if (_this2.mouse.down != null) {
                 if (up.x == _this2.mouse.down.x && up.y == _this2.mouse.down.y) {
@@ -291,7 +288,7 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
               _this2.mouse.position = null;
               _this2.mouse.down = null;
               _this2.onRender();
-              _this2.$tooltip.detach();
+              _this2.clearTT();
               appEvents.emit('graph-hover-clear');
 
               console.log('TODO, ZOOM OUT');
@@ -330,7 +327,6 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
                   ts: ts,
                   gevt: event
                 };
-                //console.log( "Calculate mouseInfo", event, this.mouse.position);
               }
 
               _this2.onGraphHover(event, isThis || !_this2.dashboard.sharedCrosshairModeOnly(), !isThis);
@@ -340,7 +336,7 @@ System.register(['app/plugins/sdk', 'lodash', 'moment', 'angular', 'app/core/app
               _this2.mouse.position = null;
               _this2.mouse.down = null;
               _this2.render();
-              _this2.$tooltip.detach();
+              _this2.clearTT();
             }, scope);
 
             // scope.$on('$destroy', () => {

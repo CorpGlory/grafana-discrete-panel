@@ -39,7 +39,7 @@ System.register(['./canvas-metric', './points', './tooltips', 'app/core/config',
     setters: [function (_canvasMetric) {
       CanvasPanelCtrl = _canvasMetric.CanvasPanelCtrl;
     }, function (_points) {
-      DistinctPoints = _points.default;
+      DistinctPoints = _points.DistinctPoints;
     }, function (_tooltips) {
       Tooltips = _tooltips.Tooltips;
     }, function (_appCoreConfig) {
@@ -83,7 +83,6 @@ System.register(['./canvas-metric', './points', './tooltips', 'app/core/config',
           var _this = _possibleConstructorReturn(this, (DiscretePanelCtrl.__proto__ || Object.getPrototypeOf(DiscretePanelCtrl)).call(this, $scope, $injector, $q));
 
           _this.data = null;
-          _this._tooltips = new Tooltips();
 
           // Set and populate defaults
           var panelDefaults = {
@@ -352,12 +351,6 @@ System.register(['./canvas-metric', './points', './tooltips', 'app/core/config',
             body += "</center>";
 
             this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
-          }
-        }, {
-          key: 'clearTT',
-          value: function clearTT() {
-            this.$tooltip.detach();
-            this._tooltips.detach();
           }
         }, {
           key: 'formatValue',
@@ -646,7 +639,7 @@ System.register(['./canvas-metric', './points', './tooltips', 'app/core/config',
             body += this.dashboard.formatDate(moment(from));
             body += " to ";
             body += this.dashboard.formatDate(moment(to));
-            body += moment.duration(time).humanize() + "<br/>";
+            body += " (" + moment.duration(time).humanize() + ")";
             body += "</center>";
 
             var pageX = 0;
@@ -721,22 +714,22 @@ System.register(['./canvas-metric', './points', './tooltips', 'app/core/config',
                 this.showTooltip(evt, hover, isExternal);
               }
               this.onRender(); // refresh the view
-            } else if (!isExternal) {
-              if (this.panel.display == 'stacked') {
-                hover = this.data[j].legendInfo[0];
-                for (var i = 0; i < this.data[j].legendInfo.length; i++) {
-                  if (this.data[j].legendInfo[i].x > this.mouse.position.x) {
-                    break;
-                  }
-                  hover = this.data[j].legendInfo[i];
-                }
-                this.hoverPoint = hover;
-                this.onRender(); // refresh the view
+              return;
+            }
 
-                if (showTT) {
-                  this.externalPT = isExternal;
-                  this.showLegendTooltip(evt.evt, hover);
+            if (!isExternal && this.panel.display == 'stacked') {
+              hover = this.data[j].legendInfo[0];
+              for (var i = 0; i < this.data[j].legendInfo.length; i++) {
+                if (this.data[j].legendInfo[i].x > this.mouse.position.x) {
+                  break;
                 }
+                hover = this.data[j].legendInfo[i];
+              }
+              this.hoverPoint = hover;
+              this.onRender(); // refresh the view
+              if (showTT) {
+                this.externalPT = isExternal;
+                this.showLegendTooltip(evt.evt, hover, false);
               }
             }
           }

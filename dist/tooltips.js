@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 System.register([], function (_export, _context) {
   "use strict";
@@ -32,25 +32,38 @@ System.register([], function (_export, _context) {
         };
       }();
 
-      _export("Tooltips", Tooltips = function () {
+      _export('Tooltips', Tooltips = function () {
         function Tooltips($holder) {
           _classCallCheck(this, Tooltips);
 
-          this._$holder = $holder;
+          if ($holder === undefined) {
+            throw new Error('Holder for tooltips is undefined');
+          }
+          this._$holder = $holder.append('<div class=""></div>');
+          //this.
         }
 
+        // expects array of { html, x, y }
+
+
         _createClass(Tooltips, [{
-          key: "addTooltip",
-          value: function addTooltip() {}
+          key: 'setTooltips',
+          value: function setTooltips(objs) {
+            var _this = this;
+
+            objs.each(function (o) {
+              var tooltip = _this._$holder.append();
+            });
+          }
         }, {
-          key: "detach",
+          key: 'detach',
           value: function detach() {}
         }]);
 
         return Tooltips;
       }());
 
-      _export("Tooltips", Tooltips);
+      _export('Tooltips', Tooltips);
 
       ;
     }

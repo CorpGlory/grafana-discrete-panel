@@ -1,5 +1,5 @@
 import { CanvasPanelCtrl } from './canvas-metric';
-import DistinctPoints from './points';
+import { DistinctPoints } from './points';
 import { Tooltips } from './tooltips';
 
 import config from 'app/core/config';
@@ -17,7 +17,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     super($scope, $injector, $q);
 
     this.data = null;
-    this._tooltips = new Tooltips();
 
     // Set and populate defaults
     var panelDefaults = {
@@ -227,19 +226,16 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           // Now Draw the value
           ctx.fillStyle = "#000000";
           ctx.textAlign = 'left';
-          ctx.fillText( point.val, point.x+7, centerV);
-        }
-        else if( this.panel.writeLastValue ) {
-          ctx.fillText( point.val, width-7, centerV );
+          ctx.fillText(point.val, point.x + 7, centerV);
+        } else if(this.panel.writeLastValue) {
+          ctx.fillText(point.val, width - 7, centerV);
         }
       }
 
       top += rowHeight;
     });
 
-
-
-    if( this.isTimeline && this.mouse.position != null ) {
+    if(this.isTimeline && this.mouse.position != null) {
       if(this.mouse.down != null) {
         var xmin = Math.min( this.mouse.position.x, this.mouse.down.x);
         var xmax = Math.max( this.mouse.position.x, this.mouse.down.x);
@@ -255,8 +251,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         ctx.fillRect(xmax, 0, width, height);
         ctx.fill();
         ctx.globalCompositeOperation = 'source-over';
-      }
-      else {
+      } else {
         ctx.strokeStyle = '#111';
         ctx.beginPath();
         ctx.moveTo(this.mouse.position.x, 0);
@@ -298,11 +293,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     body += "</center>"
 
     this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
-  }
-
-  clearTT() {
-    this.$tooltip.detach();
-    this._tooltips.detach();
   }
 
   formatValue(val, stats) {
@@ -587,8 +577,8 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     body += "<center>"
     body += this.dashboard.formatDate(moment(from));
     body += " to ";
-    body += this.dashboard.formatDate(moment(to))
-    body += moment.duration(time).humanize() + "<br/>";
+    body += this.dashboard.formatDate(moment(to));
+    body += " (" + moment.duration(time).humanize() + ")";
     body += "</center>"
 
     var pageX = 0;
@@ -662,23 +652,23 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         this.showTooltip(evt, hover, isExternal);
       }
       this.onRender(); // refresh the view
-    } else if(!isExternal) {
-      if(this.panel.display == 'stacked') {
-        hover = this.data[j].legendInfo[0];
-        for(var i = 0; i < this.data[j].legendInfo.length; i++) {
-          if(this.data[j].legendInfo[i].x > this.mouse.position.x) {
-            break;
-          }
-          hover = this.data[j].legendInfo[i];
+      return;
+    }
+    
+    if(!isExternal && this.panel.display == 'stacked') {
+      hover = this.data[j].legendInfo[0];
+      for(var i = 0; i < this.data[j].legendInfo.length; i++) {
+        if(this.data[j].legendInfo[i].x > this.mouse.position.x) {
+          break;
         }
-        this.hoverPoint = hover;
-        this.onRender(); // refresh the view
-
-        if(showTT) {
-          this.externalPT = isExternal;
-          this.showLegendTooltip(evt.evt, hover);
-        }
+        hover = this.data[j].legendInfo[i];
       }
+      this.hoverPoint = hover;
+      this.onRender(); // refresh the view
+      if(showTT) {
+        this.externalPT = isExternal;
+        this.showLegendTooltip(evt.evt, hover, false);
+      } 
     }
 
   }

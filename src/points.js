@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-export default class DistinctPoints {
+export class DistinctPoints {
 
   constructor(name) {
     this.name = name;
@@ -14,7 +14,7 @@ export default class DistinctPoints {
 
   // ts numeric ms,
   // val is the normalized value
-  add( ts, val ) {
+  add(ts, val) {
     if(this.last == null) {
       this.last = {
         val: val,
@@ -22,17 +22,14 @@ export default class DistinctPoints {
         ms: 0
       };
       this.changes.push(this.last);
-    }
-    else if(ts == this.last.ts ) {
+    } else if(ts == this.last.ts) {
       console.log('skip point with duplicate timestamp', ts, val);
       return;
-    }
-    else {
+    } else {
       if(this.changes.length === 1) {
         this.asc = ts > this.last.start;
       }
-
-      if( (ts > this.last.start) != this.asc ) {
+      if((ts > this.last.start) != this.asc) {
         console.log('skip out of order point', ts, val);
         return;
       }
@@ -42,8 +39,7 @@ export default class DistinctPoints {
         if(!this.asc) {
           this.last.start = ts;
         }
-      }
-      else {
+      } else {
         this.last = {
           val: val,
           start: ts,
@@ -59,7 +55,6 @@ export default class DistinctPoints {
       console.log( "no points found!" );
       return;
     }
-
 
     if(!this.asc) {
       this.last = this.changes[0];
@@ -84,31 +79,29 @@ export default class DistinctPoints {
       maxLegendSize = 20;
     }
     var last = this.changes[0];
-    for(var i=1; i<this.changes.length; i++) {
+    for(var i = 1; i < this.changes.length; i++) {
       var pt = this.changes[i];
 
       var s = last.start;
       var e = pt.start;
-      if( s < ctrl.range.from ) {
+      if(s < ctrl.range.from) {
         s = ctrl.range.from;
-      }
-      else if(s<ctrl.range.to) {
+      } else if(s < ctrl.range.to) {
         this.transitionCount++;
       }
 
-      if( e > ctrl.range.to ) {
+      if(e > ctrl.range.to) {
         e = ctrl.range.to;
       }
 
       last.ms = e - s;
-      if(last.ms>0) {
+      if(last.ms > 0) {
         if(_.has(valToInfo, last.val)) {
           var v = valToInfo[last.val];
           v.ms += last.ms;
           v.count++;
-        }
-        else {
-          valToInfo[last.val] = { 'val': last.val, 'ms': last.ms, 'count':1 };
+        } else {
+          valToInfo[last.val] = { 'val': last.val, 'ms': last.ms, 'count': 1 };
           legendCount++;
         }
       }
@@ -118,7 +111,7 @@ export default class DistinctPoints {
     var elapsed = ctrl.range.to - ctrl.range.from;
     this.elapsed = elapsed;
 
-    _.forEach(valToInfo, (value) => {
+    _.forEach(valToInfo, value => {
       value.per = (value.ms/elapsed);
       this.legendInfo.push( value );
     });
@@ -126,7 +119,7 @@ export default class DistinctPoints {
 
 
     if(!ctrl.isTimeline) {
-      this.legendInfo = _.orderBy( this.legendInfo, ['ms'], ['desc'] );
+      this.legendInfo = _.orderBy(this.legendInfo, ['ms'], ['desc']);
     }
     //console.log( "FINISH", this );
   }
