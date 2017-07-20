@@ -90,6 +90,11 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             mappingTypes: [{ name: 'value to text', value: 1 }, { name: 'range to text', value: 2 }],
             rangeMaps: [{ from: 'null', to: 'null', text: 'N/A' }],
             colorMaps: [{ text: 'N/A', color: '#CCC' }],
+            tooltip: {
+              highlightOnMouseover: true,
+              shared: true,
+              sort: 0
+            },
             metricNameColor: '#000000',
             valueTextColor: '#000000',
             backgroundColor: 'rgba(128, 128, 128, 0.1)',
@@ -102,7 +107,6 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             showLegendNames: true,
             showLegendValues: true,
             showLegendPercent: true,
-            highlightOnMouseover: true,
             legendSortBy: '-ms'
           };
 
@@ -232,7 +236,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
 
               ctx.fillStyle = "#000000";
 
-              if (_this2.panel.writeMetricNames && _this2.mouse.position == null && (!_this2.panel.highlightOnMouseover || _this2.panel.highlightOnMouseover)) {
+              if (_this2.panel.writeMetricNames && _this2.mouse.position == null) {
                 ctx.fillStyle = _this2.panel.metricNameColor;
                 ctx.textAlign = 'left';
                 ctx.fillText(metric.name, 10, centerV);
@@ -241,7 +245,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
               ctx.textAlign = 'right';
 
               if (_this2.mouse.down == null) {
-                if (_this2.panel.highlightOnMouseover && _this2.mouse.position != null) {
+                if (_this2.panel.tooltip.highlightOnMouseover && _this2.mouse.position != null) {
                   var next = null;
 
                   if (_this2.isTimeline) {
@@ -335,7 +339,12 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
           }
         }, {
           key: 'showStackedTooltips',
-          value: function showStackedTooltips(pos, infos) {
+          value: function showStackedTooltips(pos, infos, selectedIndex) {
+
+            if (!Number.isInteger(selectedIndex)) {
+              throw new Error('selectedIndex must integer');
+            }
+
             var body = "";
             _.each(infos, function (info, i) {
               var isLast = i + 1 == infos.length;
@@ -356,6 +365,97 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             });
 
             this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
+          }
+        }, {
+          key: 'showTooltip',
+          value: function showTooltip(evt, point, isExternal) {
+
+            var from = point.start;
+            var to = point.start + point.ms;
+            var time = point.ms;
+            var val = point.val;
+
+            body += '<div class="graph-tooltip-time">' + val + '</div>';
+
+            body += "<center>";
+            body += this.dashboard.formatDate(moment(from));
+            body += " to ";
+            body += this.dashboard.formatDate(moment(to));
+            body += " (" + moment.duration(time).humanize() + ")";
+            body += "</center>";
+
+            var pageX = 0;
+            var pageY = 0;
+            if (isExternal) {
+              var rect = this.canvas.getBoundingClientRect();
+              pageY = rect.top + evt.pos.panelRelY * rect.height;
+              if (pageY < 0 || pageY > $(window).innerHeight()) {
+                // Skip Hidden tooltip
+                this.clearTT();
+                return;
+              }
+              pageY += $(window).scrollTop();
+
+              var elapsed = this.range.to - this.range.from;
+              var pX = (evt.pos.x - this.range.from) / elapsed;
+              pageX = rect.left + pX * rect.width;
+            } else {
+              pageX = evt.evt.pageX;
+              pageY = evt.evt.pageY;
+            }
+
+            this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
+          }
+        }, {
+          key: 'showTooltips',
+          value: function showTooltips(evt, points, selectedIndex, isExternal) {
+            var _this3 = this;
+
+            if (!Array.isArray(points)) {
+              throw new Error('Not array provided');
+            }
+
+            if (!Number.isInteger(selectedIndex)) {
+              throw new Error('selectedIndex must be integer');
+            }
+
+            var curTime = this.dashboard.formatDate(moment(this.mouse.position.ts));
+
+            var body = '<div class="graph-tooltip-time"> ' + curTime + ' </div>';
+
+            _.each(points, function (point, i) {
+
+              var from = point.start;
+              var to = point.start + point.ms;
+              var time = point.ms;
+              var val = point.val;
+
+              var color = _this3.getColor(val);
+
+              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this3.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this3.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
+            });
+
+            var pageX = 0;
+            var pageY = 0;
+            if (isExternal) {
+              var rect = this.canvas.getBoundingClientRect();
+              pageY = rect.top + evt.pos.panelRelY * rect.height;
+              if (pageY < 0 || pageY > $(window).innerHeight()) {
+                // Skip Hidden tooltip
+                this.clearTT();
+                return;
+              }
+              pageY += $(window).scrollTop();
+
+              var elapsed = this.range.to - this.range.from;
+              var pX = (evt.pos.x - this.range.from) / elapsed;
+              pageX = rect.left + pX * rect.width;
+            } else {
+              pageX = evt.evt.pageX;
+              pageY = evt.evt.pageY;
+            }
+
+            this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
           }
         }, {
           key: 'formatValue',
@@ -481,7 +581,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
         }, {
           key: 'onDataReceived',
           value: function onDataReceived(dataList) {
-            var _this3 = this;
+            var _this4 = this;
 
             $(this.canvas).css('cursor', 'pointer');
 
@@ -497,17 +597,17 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
                   var res = new DistinctPoints(metric.columns[i].text);
                   for (var j = 0; j < metric.rows.length; j++) {
                     var row = metric.rows[j];
-                    res.add(row[0], _this3.formatValue(row[i]));
+                    res.add(row[0], _this4.formatValue(row[i]));
                   }
-                  res.finish(_this3);
+                  res.finish(_this4);
                   data.push(res);
                 }
               } else {
                 var res = new DistinctPoints(metric.target);
                 _.forEach(metric.datapoints, function (point) {
-                  res.add(point[1], _this3.formatValue(point[0]));
+                  res.add(point[1], _this4.formatValue(point[0]));
                 });
-                res.finish(_this3);
+                res.finish(_this4);
                 data.push(res);
               }
             });
@@ -540,14 +640,14 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
         }, {
           key: 'addColorMap',
           value: function addColorMap(what) {
-            var _this4 = this;
+            var _this5 = this;
 
             if (what == 'curent') {
               _.forEach(this.data, function (metric) {
                 if (metric.legendInfo) {
                   _.forEach(metric.legendInfo, function (info) {
                     if (!_.has(info.val)) {
-                      _this4.panel.colorMaps.push({ text: info.val, color: _this4.getColor(info.val) });
+                      _this5.panel.colorMaps.push({ text: info.val, color: _this5.getColor(info.val) });
                     }
                   });
                 }
@@ -630,116 +730,22 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             return disp;
           }
         }, {
-          key: 'showTooltip',
-          value: function showTooltip(evt, point, isExternal) {
-
-            var from = point.start;
-            var to = point.start + point.ms;
-            var time = point.ms;
-            var val = point.val;
-
-            body += '<div class="graph-tooltip-time">' + val + '</div>';
-
-            body += "<center>";
-            body += this.dashboard.formatDate(moment(from));
-            body += " to ";
-            body += this.dashboard.formatDate(moment(to));
-            body += " (" + moment.duration(time).humanize() + ")";
-            body += "</center>";
-
-            var pageX = 0;
-            var pageY = 0;
-            if (isExternal) {
-              var rect = this.canvas.getBoundingClientRect();
-              pageY = rect.top + evt.pos.panelRelY * rect.height;
-              if (pageY < 0 || pageY > $(window).innerHeight()) {
-                // Skip Hidden tooltip
-                this.clearTT();
-                return;
-              }
-              pageY += $(window).scrollTop();
-
-              var elapsed = this.range.to - this.range.from;
-              var pX = (evt.pos.x - this.range.from) / elapsed;
-              pageX = rect.left + pX * rect.width;
-            } else {
-              pageX = evt.evt.pageX;
-              pageY = evt.evt.pageY;
-            }
-
-            this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
-          }
-        }, {
-          key: 'showTooltips',
-          value: function showTooltips(evt, points, isExternal) {
-            var _this5 = this;
-
-            if (!Array.isArray(points)) {
-              throw new Error('Not array provided');
-            }
-
-            var body = "";
-
-            _.each(points, function (point, i) {
-              var isLast = i + 1 == points.length;
-
-              var from = point.start;
-              var to = point.start + point.ms;
-              var time = point.ms;
-              var val = point.val;
-
-              body += '<div class="graph-tooltip-time">' + val + '</div>';
-
-              body += "<center>";
-              body += _this5.dashboard.formatDate(moment(from));
-              body += " to ";
-              body += _this5.dashboard.formatDate(moment(to));
-              body += " (" + moment.duration(time).humanize() + ")";
-              body += "</center>";
-
-              if (!isLast) {
-                body += '<hr>';
-              }
-            });
-
-            var pageX = 0;
-            var pageY = 0;
-            if (isExternal) {
-              var rect = this.canvas.getBoundingClientRect();
-              pageY = rect.top + evt.pos.panelRelY * rect.height;
-              if (pageY < 0 || pageY > $(window).innerHeight()) {
-                // Skip Hidden tooltip
-                this.clearTT();
-                return;
-              }
-              pageY += $(window).scrollTop();
-
-              var elapsed = this.range.to - this.range.from;
-              var pX = (evt.pos.x - this.range.from) / elapsed;
-              pageX = rect.left + pX * rect.width;
-            } else {
-              pageX = evt.evt.pageX;
-              pageY = evt.evt.pageY;
-            }
-
-            this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
-          }
-        }, {
           key: '_getRowsToHover',
           value: function _getRowsToHover() {
             var j = Math.floor(this.mouse.position.y / this.panel.rowHeight);
-            if (j < 0) {
-              j = 0;
-            }
-            if (j >= this.data.length) {
-              j = this.data.length - 1;
+            j = _.clamp(j, 0, this.data.length - 1);
+            var items = undefined;
+
+            if (this.panel.tooltip.shared) {
+              items = _.range(0, this.data.length);
+            } else {
+              items = [j];
             }
 
-            var js = [j];
-            if (j > 0) {
-              js = [0, j];
-            }
-            return js;
+            return {
+              items: items,
+              selected: j
+            };
           }
         }, {
           key: 'onGraphHover',
@@ -774,7 +780,9 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
               return;
             }
 
-            var js = this._getRowsToHover();
+            var _getRowsToHover2 = this._getRowsToHover(),
+                js = _getRowsToHover2.items,
+                selected = _getRowsToHover2.selected;
 
             if (this.isTimeline) {
               var hovers = [];
@@ -789,7 +797,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
                 hovers.push(hover);
               });
 
-              this.showTooltips(evt, hovers, isExternal);
+              this.showTooltips(evt, hovers, selected, isExternal);
               this.onRender();
               return;
             }
@@ -807,7 +815,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
                 hovers.push(hover);
               });
 
-              this.showStackedTooltips(evt.evt, hovers, false);
+              this.showStackedTooltips(evt.evt, hovers, selected);
               this.onRender();
               return;
             }

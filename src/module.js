@@ -34,6 +34,11 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       colorMaps: [
         { text: 'N/A', color: '#CCC' }
       ],
+      tooltip: {
+        highlightOnMouseover: true,
+        shared: true,
+        sort: 0
+      },
       metricNameColor: '#000000',
       valueTextColor: '#000000',
       backgroundColor: 'rgba(128, 128, 128, 0.1)',
@@ -46,7 +51,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       showLegendNames: true,
       showLegendValues: true,
       showLegendPercent: true,
-      highlightOnMouseover: true,
       legendSortBy: '-ms'
     };
 
@@ -78,7 +82,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   onRender() {
 
-    if(this.data == null ||  !(this.context) ) {
+    if(this.data == null || !(this.context)) {
       return;
     }
 
@@ -143,9 +147,9 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         for(var i = 0; i < metric.legendInfo.length; i++) {
           point = metric.legendInfo[i];
 
-          var xt = Math.max( start - this.range.from, 0 );
+          var xt = Math.max(start - this.range.from, 0);
           point.x = (xt / elapsed) * width;
-          ctx.fillStyle = this.getColor( point.val );
+          ctx.fillStyle = this.getColor(point.val);
           ctx.fillRect(point.x, top, width, rowHeight);
 
           if(this.panel.writeAllValues) {
@@ -172,8 +176,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
       if(
         this.panel.writeMetricNames &&
-        this.mouse.position == null &&
-        (!this.panel.highlightOnMouseover || this.panel.highlightOnMouseover)
+        this.mouse.position == null
       ) {
         ctx.fillStyle = this.panel.metricNameColor;
         ctx.textAlign = 'left';
@@ -183,12 +186,12 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       ctx.textAlign = 'right';
 
       if(this.mouse.down == null) {
-        if(this.panel.highlightOnMouseover && this.mouse.position != null) {
+        if(this.panel.tooltip.highlightOnMouseover && this.mouse.position != null) {
           var next = null;
 
           if(this.isTimeline) {
             point = metric.changes[0];
-            for(var i=0; i < metric.changes.length; i++) {
+            for(var i = 0; i < metric.changes.length; i++) {
               if(metric.changes[i].start > this.mouse.position.ts) {
                 next = metric.changes[i];
                 break;
@@ -276,7 +279,12 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     }
   }
 
-  showStackedTooltips(pos, infos) {
+  showStackedTooltips(pos, infos, selectedIndex) {
+
+    if(!Number.isInteger(selectedIndex)) {
+      throw new Error('selectedIndex must integer');
+    }
+
     var body = "";
     _.each(infos, (info, i) => {    
       var isLast = (i + 1) == infos.length;
@@ -297,6 +305,113 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     });
 
     this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
+  }
+
+  showTooltip(evt, point, isExternal) {
+    
+    var from = point.start;
+    var to = point.start + point.ms;
+    var time = point.ms;
+    var val = point.val;
+
+    body += '<div class="graph-tooltip-time">' + val + '</div>';
+
+    body += "<center>"
+    body += this.dashboard.formatDate(moment(from));
+    body += " to ";
+    body += this.dashboard.formatDate(moment(to));
+    body += " (" + moment.duration(time).humanize() + ")";
+    body += "</center>"
+    
+    var pageX = 0;
+    var pageY = 0;
+    if(isExternal) {
+      var rect = this.canvas.getBoundingClientRect();
+      pageY = rect.top + (evt.pos.panelRelY * rect.height);
+      if(pageY < 0 || pageY > $(window).innerHeight()) {
+        // Skip Hidden tooltip
+        this.clearTT();
+        return;
+      }
+      pageY += $(window).scrollTop();
+
+      var elapsed = this.range.to - this.range.from;
+      var pX = (evt.pos.x - this.range.from) / elapsed;
+      pageX = rect.left + (pX * rect.width);
+    } else {
+      pageX = evt.evt.pageX;
+      pageY = evt.evt.pageY;
+    }
+
+    this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
+  };
+
+  showTooltips(evt, points, selectedIndex, isExternal) {
+
+    if(!Array.isArray(points)) {
+      throw new Error('Not array provided');
+    }
+
+    if(!Number.isInteger(selectedIndex)) {
+      throw new Error('selectedIndex must be integer');
+    }
+
+    var curTime = this.dashboard.formatDate(moment(this.mouse.position.ts));
+
+    var body = `<div class="graph-tooltip-time"> ${curTime} </div>`;
+    
+    _.each(points, (point, i) => {
+
+      var from = point.start;
+      var to = point.start + point.ms;
+      var time = point.ms;
+      var val = point.val;
+
+      var color = this.getColor(val);
+
+      body += `
+      <div 
+        class="
+          graph-tooltip-list-item 
+          ${i == selectedIndex ? 'graph-tooltip-list-item--highlight' : ''}
+        "
+      >
+        <div class="graph-tooltip-series-name">
+          <i class="fa fa-minus" style="color:${color}"></i>
+          ${ val }
+        </div>
+        <div class="graph-tooltip-value">
+          ${this.dashboard.formatDate(moment(from))}
+          to
+          ${this.dashboard.formatDate(moment(to))}
+          (${moment.duration(time).humanize()});
+        </div>
+      </div>
+      `;
+    });
+    
+    var pageX = 0;
+    var pageY = 0;
+    if(isExternal) {
+      var rect = this.canvas.getBoundingClientRect();
+      pageY = rect.top + (evt.pos.panelRelY * rect.height);
+      if(pageY < 0 || pageY > $(window).innerHeight()) {
+        // Skip Hidden tooltip
+        this.clearTT();
+        return;
+      }
+      pageY += $(window).scrollTop();
+
+      var elapsed = this.range.to - this.range.from;
+      var pX = (evt.pos.x - this.range.from) / elapsed;
+      pageX = rect.left + (pX * rect.width);
+    } else {
+      pageX = evt.evt.pageX;
+      pageY = evt.evt.pageY;
+    }
+
+    this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
+
   }
 
   formatValue(val, stats) {
@@ -355,7 +470,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       '#33B5E5'
     ];
 
-    return palet[ Math.abs(this.hashCode(val+'')) % palet.length ];
+    return palet[Math.abs(this.hashCode(val + '')) % palet.length];
   }
 
   randomColor() {
@@ -569,109 +684,21 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   // Mouse Events
   //------------------
 
-  showTooltip(evt, point, isExternal) {
-    
-    var from = point.start;
-    var to = point.start + point.ms;
-    var time = point.ms;
-    var val = point.val;
-
-    body += '<div class="graph-tooltip-time">' + val + '</div>';
-
-    body += "<center>"
-    body += this.dashboard.formatDate(moment(from));
-    body += " to ";
-    body += this.dashboard.formatDate(moment(to));
-    body += " (" + moment.duration(time).humanize() + ")";
-    body += "</center>"
-    
-    var pageX = 0;
-    var pageY = 0;
-    if(isExternal) {
-      var rect = this.canvas.getBoundingClientRect();
-      pageY = rect.top + (evt.pos.panelRelY * rect.height);
-      if(pageY < 0 || pageY > $(window).innerHeight()) {
-        // Skip Hidden tooltip
-        this.clearTT();
-        return;
-      }
-      pageY += $(window).scrollTop();
-
-      var elapsed = this.range.to - this.range.from;
-      var pX = (evt.pos.x - this.range.from) / elapsed;
-      pageX = rect.left + (pX * rect.width);
-    } else {
-      pageX = evt.evt.pageX;
-      pageY = evt.evt.pageY;
-    }
-
-    this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
-  };
-
-  showTooltips(evt, points, isExternal) {
-
-    if(!Array.isArray(points)) {
-      throw new Error('Not array provided');
-    }
-
-    var body = "";
-    
-    _.each(points, (point, i) => {
-      var isLast = (i + 1) == points.length;
-
-      var from = point.start;
-      var to = point.start + point.ms;
-      var time = point.ms;
-      var val = point.val;
-
-      body += '<div class="graph-tooltip-time">' + val + '</div>';
-
-      body += "<center>"
-      body += this.dashboard.formatDate(moment(from));
-      body += " to ";
-      body += this.dashboard.formatDate(moment(to));
-      body += " (" + moment.duration(time).humanize() + ")";
-      body += "</center>"
-
-      if(!isLast) {
-        body += '<hr>';
-      }
-    });
-    
-    var pageX = 0;
-    var pageY = 0;
-    if(isExternal) {
-      var rect = this.canvas.getBoundingClientRect();
-      pageY = rect.top + (evt.pos.panelRelY * rect.height);
-      if(pageY < 0 || pageY > $(window).innerHeight()) {
-        // Skip Hidden tooltip
-        this.clearTT();
-        return;
-      }
-      pageY += $(window).scrollTop();
-
-      var elapsed = this.range.to - this.range.from;
-      var pX = (evt.pos.x - this.range.from) / elapsed;
-      pageX = rect.left + (pX * rect.width);
-    } else {
-      pageX = evt.evt.pageX;
-      pageY = evt.evt.pageY;
-    }
-
-    this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
-
-  }
-
   _getRowsToHover() {
     var j = Math.floor(this.mouse.position.y / this.panel.rowHeight);
-    if (j < 0) { j = 0; }
-    if (j >= this.data.length) { j = this.data.length - 1; }
+    j = _.clamp(j, 0, this.data.length - 1);
+    var items = undefined;
 
-    var js = [j];
-    if(j > 0) {
-      js = [0, j];
+    if(this.panel.tooltip.shared) {
+      items = _.range(0, this.data.length);
+    } else {
+      items = [j];
     }
-    return js;
+
+    return {
+      items: items,
+      selected: j
+    }
   }
 
   onGraphHover(evt, showTT, isExternal) {
@@ -703,7 +730,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       return;
     }
     
-    var js = this._getRowsToHover();
+    var { items: js, selected } = this._getRowsToHover();
     
     if(this.isTimeline) {
       var hovers = [];
@@ -718,7 +745,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         hovers.push(hover);
       });
       
-      this.showTooltips(evt, hovers, isExternal);
+      this.showTooltips(evt, hovers, selected, isExternal);
       this.onRender();
       return;
     }
@@ -736,7 +763,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         hovers.push(hover);
       });
 
-      this.showStackedTooltips(evt.evt, hovers, false);
+      this.showStackedTooltips(evt.evt, hovers, selected);
       this.onRender();
       return;
     }
