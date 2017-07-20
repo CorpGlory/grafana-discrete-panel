@@ -1,4 +1,4 @@
-import { MetricsPanelCtrl } from  'app/plugins/sdk';
+import { MetricsPanelCtrl } from 'app/plugins/sdk';
 
 import appEvents from 'app/core/app_events';
 
@@ -49,7 +49,7 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
 
     var rect = this.wrap.getBoundingClientRect();
 
-    var height = Math.max( this.height, 100 );
+    var height = Math.max(this.height, 100);
     var width = rect.width;
     this.canvas.width = width;
     this.canvas.height = height;
@@ -62,7 +62,7 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
 
     var time = "";
     if(this.mouse.position != null) {
-      time = this.dashboard.formatDate( moment(this.mouse.position.ts) );
+      time = this.dashboard.formatDate(moment(this.mouse.position.ts));
     }
 
     ctx.fillStyle = '#999999';
@@ -70,7 +70,7 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
     ctx.fillStyle = "#111111";
     ctx.font = '24px "Open Sans", Helvetica, Arial, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText("Mouse @ "+time, 10, centerV);
+    ctx.fillText("Mouse @ " + time, 10, centerV);
 
     if(this.mouse.position != null ) {
       if(this.mouse.down != null) {
@@ -108,7 +108,6 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
 
   clearTT() {
     this.$tooltip.detach();
-    //this._tooltips.detach();
   }
 
   getMousePosition(evt) {

@@ -1,5 +1,6 @@
 import _ from "lodash";
 
+
 export class DistinctPoints {
 
   constructor(name) {

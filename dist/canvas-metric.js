@@ -172,7 +172,6 @@ System.register(['app/plugins/sdk', 'app/core/app_events', 'lodash', 'moment', '
           key: 'clearTT',
           value: function clearTT() {
             this.$tooltip.detach();
-            //this._tooltips.detach();
           }
         }, {
           key: 'getMousePosition',
