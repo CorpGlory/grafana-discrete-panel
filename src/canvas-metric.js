@@ -26,6 +26,12 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
     this.events.on('panel-initialized', this.onPanelInitalized.bind(this));
     this.events.on('refresh', this.onRefresh.bind(this));
     this.events.on('render', this.onRender.bind(this));
+
+    this._devicePixelRatio = 1;
+    if(window.devicePixelRatio !== undefined) {
+      this._devicePixelRatio = window.devicePixelRatio;
+    }
+
   }
 
   onPanelInitalized() {
@@ -146,6 +152,7 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
     $(this.wrap).css('width', '100%');
 
     this.context = this.canvas.getContext('2d');
+
     this.canvas.addEventListener('mousemove', evt => {
       this.mouse.position = this.getMousePosition(evt);
       var info = {
