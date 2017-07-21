@@ -279,7 +279,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     }
   }
 
-  showStackedTooltips(pos, infos, selectedIndex) {
+  _showStackedTooltips(pos, infos, selectedIndex) {
 
     if(!Number.isInteger(selectedIndex)) {
       throw new Error('selectedIndex must integer');
@@ -307,7 +307,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
   }
 
-  showTooltip(evt, point, isExternal) {
+  _showSelectionTooltip(evt, point, isExternal) {
     
     var from = point.start;
     var to = point.start + point.ms;
@@ -346,7 +346,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
   };
 
-  showTooltips(evt, points, selectedIndex, isExternal) {
+  _showTimelineTooltips(evt, points, selectedIndex, isExternal) {
 
     if(!Array.isArray(points)) {
       throw new Error('Not array provided');
@@ -356,7 +356,9 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       throw new Error('selectedIndex must be integer');
     }
 
-    var curTime = this.dashboard.formatDate(moment(this.mouse.position.ts));
+    // Format might be idfferent 
+    // see https://github.com/grafana/grafana/blob/32f9a42d5e931be549ff9f169468b404af9a6b21/public/app/plugins/panel/graph/graph_tooltip.js#L212
+    var curTime = this.dashboard.formatDate(moment(this.mouse.position.ts), 'YYYY-MM-DD HH:mm:ss.SSS');
 
     var body = `<div class="graph-tooltip-time"> ${curTime} </div>`;
     
@@ -720,7 +722,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         val: "Zoom To:" 
       };
 
-      this.showTooltip(evt, point, isExternal);
+      this._showSelectionTooltip(evt, point, isExternal);
       this.onRender(); // refresh the view
       return;
     }
@@ -745,7 +747,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         hovers.push(hover);
       });
       
-      this.showTooltips(evt, hovers, selected, isExternal);
+      this._showTimelineTooltips(evt, hovers, selected, isExternal);
       this.onRender();
       return;
     }
@@ -763,7 +765,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         hovers.push(hover);
       });
 
-      this.showStackedTooltips(evt.evt, hovers, selected);
+      this._showStackedTooltips(evt.evt, hovers, selected);
       this.onRender();
       return;
     }
@@ -774,16 +776,16 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     if(pt && pt.start) {
       var range = { from: moment.utc(pt.start), to: moment.utc(pt.start + pt.ms) };
       this.timeSrv.setTime(range);
-      this.clear();
+      this._clear();
     }
   }
 
   onMouseSelectedRange(range) {
     this.timeSrv.setTime(range);
-    this.clear();
+    this._clear();
   }
 
-  clear() {
+  _clear() {
     this.mouse.position = null;
     this.mouse.down = null;
     $(this.canvas).css('cursor', 'wait');

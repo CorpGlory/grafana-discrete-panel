@@ -338,8 +338,8 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             }
           }
         }, {
-          key: 'showStackedTooltips',
-          value: function showStackedTooltips(pos, infos, selectedIndex) {
+          key: '_showStackedTooltips',
+          value: function _showStackedTooltips(pos, infos, selectedIndex) {
 
             if (!Number.isInteger(selectedIndex)) {
               throw new Error('selectedIndex must integer');
@@ -367,8 +367,8 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
           }
         }, {
-          key: 'showTooltip',
-          value: function showTooltip(evt, point, isExternal) {
+          key: '_showSelectionTooltip',
+          value: function _showSelectionTooltip(evt, point, isExternal) {
 
             var from = point.start;
             var to = point.start + point.ms;
@@ -407,8 +407,8 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
           }
         }, {
-          key: 'showTooltips',
-          value: function showTooltips(evt, points, selectedIndex, isExternal) {
+          key: '_showTimelineTooltips',
+          value: function _showTimelineTooltips(evt, points, selectedIndex, isExternal) {
             var _this3 = this;
 
             if (!Array.isArray(points)) {
@@ -419,7 +419,9 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
               throw new Error('selectedIndex must be integer');
             }
 
-            var curTime = this.dashboard.formatDate(moment(this.mouse.position.ts));
+            // Format might be idfferent 
+            // see https://github.com/grafana/grafana/blob/32f9a42d5e931be549ff9f169468b404af9a6b21/public/app/plugins/panel/graph/graph_tooltip.js#L212
+            var curTime = this.dashboard.formatDate(moment(this.mouse.position.ts), 'YYYY-MM-DD HH:mm:ss.SSS');
 
             var body = '<div class="graph-tooltip-time"> ' + curTime + ' </div>';
 
@@ -770,7 +772,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
                 val: "Zoom To:"
               };
 
-              this.showTooltip(evt, point, isExternal);
+              this._showSelectionTooltip(evt, point, isExternal);
               this.onRender(); // refresh the view
               return;
             }
@@ -797,7 +799,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
                 hovers.push(hover);
               });
 
-              this.showTooltips(evt, hovers, selected, isExternal);
+              this._showTimelineTooltips(evt, hovers, selected, isExternal);
               this.onRender();
               return;
             }
@@ -815,7 +817,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
                 hovers.push(hover);
               });
 
-              this.showStackedTooltips(evt.evt, hovers, selected);
+              this._showStackedTooltips(evt.evt, hovers, selected);
               this.onRender();
               return;
             }
@@ -826,18 +828,18 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             if (pt && pt.start) {
               var range = { from: moment.utc(pt.start), to: moment.utc(pt.start + pt.ms) };
               this.timeSrv.setTime(range);
-              this.clear();
+              this._clear();
             }
           }
         }, {
           key: 'onMouseSelectedRange',
           value: function onMouseSelectedRange(range) {
             this.timeSrv.setTime(range);
-            this.clear();
+            this._clear();
           }
         }, {
-          key: 'clear',
-          value: function clear() {
+          key: '_clear',
+          value: function _clear() {
             this.mouse.position = null;
             this.mouse.down = null;
             $(this.canvas).css('cursor', 'wait');

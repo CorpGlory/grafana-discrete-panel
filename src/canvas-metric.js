@@ -7,7 +7,6 @@ import moment from 'moment';
 import angular from 'angular';
 
 
-
 // Expects a template with:
 // <div class="canvas-spot"></div>
 export class CanvasPanelCtrl extends MetricsPanelCtrl {
@@ -35,7 +34,6 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
   }
 
   onRefresh() {
-    //console.log("onRefresh()");
     this.render();
   }
 

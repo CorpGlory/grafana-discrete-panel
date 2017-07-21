@@ -98,7 +98,6 @@ System.register(['app/plugins/sdk', 'app/core/app_events', 'lodash', 'moment', '
         }, {
           key: 'onRefresh',
           value: function onRefresh() {
-            //console.log("onRefresh()");
             this.render();
           }
         }, {
