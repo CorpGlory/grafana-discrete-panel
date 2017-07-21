@@ -368,6 +368,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       var to = point.start + point.ms;
       var time = point.ms;
       var val = point.val;
+      var seriesName = this.data[i].name;
 
       var color = this.getColor(val);
 
@@ -380,7 +381,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       >
         <div class="graph-tooltip-series-name">
           <i class="fa fa-minus" style="color:${color}"></i>
-          ${ val }
+          ${seriesName}: ${ val }
         </div>
         <div class="graph-tooltip-value">
           ${this.dashboard.formatDate(moment(from))}

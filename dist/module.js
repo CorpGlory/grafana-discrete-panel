@@ -431,10 +431,11 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
               var to = point.start + point.ms;
               var time = point.ms;
               var val = point.val;
+              var seriesName = _this3.data[i].name;
 
               var color = _this3.getColor(val);
 
-              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this3.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this3.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
+              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + seriesName + ': ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this3.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this3.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
             });
 
             var pageX = 0;
