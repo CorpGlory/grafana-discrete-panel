@@ -279,32 +279,10 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     }
   }
 
-  _showStackedTooltips(pos, infos, selectedIndex) {
-
-    if(!Number.isInteger(selectedIndex)) {
-      throw new Error('selectedIndex must integer');
-    }
-
-    var body = "";
-    _.each(infos, (info, i) => {    
-      var isLast = (i + 1) == infos.length;
-
-      body += '<div class="graph-tooltip-time">'+ info.val +'</div>';
-      body += "<center>";
-      if(info.count > 1) {
-        body += info.count + " times<br/>for<br/>";
-      }
-      body += moment.duration(info.ms).humanize();
-      if(info.count > 1) {
-        body += "<br/>total";
-      }
-      body += "</center>";
-      if(!isLast) {
-        body += "<hr>";
-      }
-    });
-
-    this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
+  _getCurrentTimeFormatted() {
+    // Format might be idfferent 
+    // see https://github.com/grafana/grafana/blob/32f9a42d5e931be549ff9f169468b404af9a6b21/public/app/plugins/panel/graph/graph_tooltip.js#L212
+    return this.dashboard.formatDate(moment(this.mouse.position.ts), 'YYYY-MM-DD HH:mm:ss.SSS');
   }
 
   _showSelectionTooltip(evt, point, isExternal) {
@@ -346,6 +324,42 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
   };
 
+  _showStackedTooltips(pos, infos, selectedIndex) {
+
+    if(!Number.isInteger(selectedIndex)) {
+      throw new Error('selectedIndex must integer');
+    }
+
+    var body = `<div class="graph-tooltip-time"> ${this._getCurrentTimeFormatted()} </div>`;
+
+    _.each(infos, (info, i) => {
+
+      var color = this.getColor(info.val);
+      var seriesName = this.data[i].name;
+
+      body += `
+      <div 
+        class="
+          graph-tooltip-list-item 
+          ${i == selectedIndex ? 'graph-tooltip-list-item--highlight' : ''}
+        "
+      >
+        <div class="graph-tooltip-series-name">
+          <i class="fa fa-minus" style="color:${color}"></i>
+          ${seriesName}: ${info.val}
+          (${info.count})
+        </div>
+        <div class="graph-tooltip-value">
+          
+          ${moment.duration(info.ms).humanize()}
+        </div>
+      </div>
+      `;
+    });
+
+    this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
+  }
+
   _showTimelineTooltips(evt, points, selectedIndex, isExternal) {
 
     if(!Array.isArray(points)) {
@@ -356,11 +370,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       throw new Error('selectedIndex must be integer');
     }
 
-    // Format might be idfferent 
-    // see https://github.com/grafana/grafana/blob/32f9a42d5e931be549ff9f169468b404af9a6b21/public/app/plugins/panel/graph/graph_tooltip.js#L212
-    var curTime = this.dashboard.formatDate(moment(this.mouse.position.ts), 'YYYY-MM-DD HH:mm:ss.SSS');
-
-    var body = `<div class="graph-tooltip-time"> ${curTime} </div>`;
+    var body = `<div class="graph-tooltip-time"> ${this._getCurrentTimeFormatted()} </div>`;
     
     _.each(points, (point, i) => {
 
@@ -381,7 +391,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       >
         <div class="graph-tooltip-series-name">
           <i class="fa fa-minus" style="color:${color}"></i>
-          ${seriesName}: ${ val }
+          ${seriesName}: ${val}
         </div>
         <div class="graph-tooltip-value">
           ${this.dashboard.formatDate(moment(from))}

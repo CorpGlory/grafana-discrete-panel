@@ -338,33 +338,11 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             }
           }
         }, {
-          key: '_showStackedTooltips',
-          value: function _showStackedTooltips(pos, infos, selectedIndex) {
-
-            if (!Number.isInteger(selectedIndex)) {
-              throw new Error('selectedIndex must integer');
-            }
-
-            var body = "";
-            _.each(infos, function (info, i) {
-              var isLast = i + 1 == infos.length;
-
-              body += '<div class="graph-tooltip-time">' + info.val + '</div>';
-              body += "<center>";
-              if (info.count > 1) {
-                body += info.count + " times<br/>for<br/>";
-              }
-              body += moment.duration(info.ms).humanize();
-              if (info.count > 1) {
-                body += "<br/>total";
-              }
-              body += "</center>";
-              if (!isLast) {
-                body += "<hr>";
-              }
-            });
-
-            this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
+          key: '_getCurrentTimeFormatted',
+          value: function _getCurrentTimeFormatted() {
+            // Format might be idfferent 
+            // see https://github.com/grafana/grafana/blob/32f9a42d5e931be549ff9f169468b404af9a6b21/public/app/plugins/panel/graph/graph_tooltip.js#L212
+            return this.dashboard.formatDate(moment(this.mouse.position.ts), 'YYYY-MM-DD HH:mm:ss.SSS');
           }
         }, {
           key: '_showSelectionTooltip',
@@ -407,9 +385,30 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             this.$tooltip.html(body).place_tt(pageX + 20, pageY + 5);
           }
         }, {
+          key: '_showStackedTooltips',
+          value: function _showStackedTooltips(pos, infos, selectedIndex) {
+            var _this3 = this;
+
+            if (!Number.isInteger(selectedIndex)) {
+              throw new Error('selectedIndex must integer');
+            }
+
+            var body = '<div class="graph-tooltip-time"> ' + this._getCurrentTimeFormatted() + ' </div>';
+
+            _.each(infos, function (info, i) {
+
+              var color = _this3.getColor(info.val);
+              var seriesName = _this3.data[i].name;
+
+              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + seriesName + ': ' + info.val + '\n          (' + info.count + ')\n        </div>\n        <div class="graph-tooltip-value">\n          \n          ' + moment.duration(info.ms).humanize() + '\n        </div>\n      </div>\n      ';
+            });
+
+            this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
+          }
+        }, {
           key: '_showTimelineTooltips',
           value: function _showTimelineTooltips(evt, points, selectedIndex, isExternal) {
-            var _this3 = this;
+            var _this4 = this;
 
             if (!Array.isArray(points)) {
               throw new Error('Not array provided');
@@ -419,11 +418,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
               throw new Error('selectedIndex must be integer');
             }
 
-            // Format might be idfferent 
-            // see https://github.com/grafana/grafana/blob/32f9a42d5e931be549ff9f169468b404af9a6b21/public/app/plugins/panel/graph/graph_tooltip.js#L212
-            var curTime = this.dashboard.formatDate(moment(this.mouse.position.ts), 'YYYY-MM-DD HH:mm:ss.SSS');
-
-            var body = '<div class="graph-tooltip-time"> ' + curTime + ' </div>';
+            var body = '<div class="graph-tooltip-time"> ' + this._getCurrentTimeFormatted() + ' </div>';
 
             _.each(points, function (point, i) {
 
@@ -431,11 +426,11 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
               var to = point.start + point.ms;
               var time = point.ms;
               var val = point.val;
-              var seriesName = _this3.data[i].name;
+              var seriesName = _this4.data[i].name;
 
-              var color = _this3.getColor(val);
+              var color = _this4.getColor(val);
 
-              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + seriesName + ': ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this3.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this3.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
+              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + seriesName + ': ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this4.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this4.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
             });
 
             var pageX = 0;
@@ -584,7 +579,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
         }, {
           key: 'onDataReceived',
           value: function onDataReceived(dataList) {
-            var _this4 = this;
+            var _this5 = this;
 
             $(this.canvas).css('cursor', 'pointer');
 
@@ -600,17 +595,17 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
                   var res = new DistinctPoints(metric.columns[i].text);
                   for (var j = 0; j < metric.rows.length; j++) {
                     var row = metric.rows[j];
-                    res.add(row[0], _this4.formatValue(row[i]));
+                    res.add(row[0], _this5.formatValue(row[i]));
                   }
-                  res.finish(_this4);
+                  res.finish(_this5);
                   data.push(res);
                 }
               } else {
                 var res = new DistinctPoints(metric.target);
                 _.forEach(metric.datapoints, function (point) {
-                  res.add(point[1], _this4.formatValue(point[0]));
+                  res.add(point[1], _this5.formatValue(point[0]));
                 });
-                res.finish(_this4);
+                res.finish(_this5);
                 data.push(res);
               }
             });
@@ -643,14 +638,14 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
         }, {
           key: 'addColorMap',
           value: function addColorMap(what) {
-            var _this5 = this;
+            var _this6 = this;
 
             if (what == 'curent') {
               _.forEach(this.data, function (metric) {
                 if (metric.legendInfo) {
                   _.forEach(metric.legendInfo, function (info) {
                     if (!_.has(info.val)) {
-                      _this5.panel.colorMaps.push({ text: info.val, color: _this5.getColor(info.val) });
+                      _this6.panel.colorMaps.push({ text: info.val, color: _this6.getColor(info.val) });
                     }
                   });
                 }
@@ -753,7 +748,7 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
         }, {
           key: 'onGraphHover',
           value: function onGraphHover(evt, showTT, isExternal) {
-            var _this6 = this;
+            var _this7 = this;
 
             this.externalPT = isExternal;
             if (!this.data) {
@@ -790,12 +785,12 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             if (this.isTimeline) {
               var hovers = [];
               _.each(js, function (j) {
-                var hover = _this6.data[j].changes[0];
-                for (var i = 0; i < _this6.data[j].changes.length; i++) {
-                  if (_this6.data[j].changes[i].start > _this6.mouse.position.ts) {
+                var hover = _this7.data[j].changes[0];
+                for (var i = 0; i < _this7.data[j].changes.length; i++) {
+                  if (_this7.data[j].changes[i].start > _this7.mouse.position.ts) {
                     break;
                   }
-                  hover = _this6.data[j].changes[i];
+                  hover = _this7.data[j].changes[i];
                 }
                 hovers.push(hover);
               });
@@ -808,12 +803,12 @@ System.register(['./canvas-metric', './points', 'app/core/config', 'app/core/app
             if (!isExternal && this.panel.display == 'stacked') {
               var hovers = [];
               _.each(js, function (j) {
-                var hover = _this6.data[j].legendInfo[0];
-                for (var i = 0; i < _this6.data[j].legendInfo.length; i++) {
-                  if (_this6.data[j].legendInfo[i].x > _this6.mouse.position.x) {
+                var hover = _this7.data[j].legendInfo[0];
+                for (var i = 0; i < _this7.data[j].legendInfo.length; i++) {
+                  if (_this7.data[j].legendInfo[i].x > _this7.mouse.position.x) {
                     break;
                   }
-                  hover = _this6.data[j].legendInfo[i];
+                  hover = _this7.data[j].legendInfo[i];
                 }
                 hovers.push(hover);
               });
