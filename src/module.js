@@ -705,18 +705,20 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   _getRowsToHover() {
     var j = Math.floor(this.mouse.position.y / this.panel.rowHeight);
     j = _.clamp(j, 0, this.data.length - 1);
-    var items = undefined;
+    var res = {
+      items: undefined,
+      selected: undefined
+    };
 
     if(this.panel.tooltip.shared) {
-      items = _.range(0, this.data.length);
+      res.items = _.range(0, this.data.length);
+      res.selected = j;
     } else {
-      items = [j];
+      res.items = [j];
+      res.selected = 0;
     }
 
-    return {
-      items: items,
-      selected: j
-    }
+    return res;
   }
 
   onGraphHover(evt, showTT, isExternal) {
@@ -726,8 +728,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       this.onRender();
       return;
     }
-
-    
 
     if(this.mouse.down != null) {
       var from = Math.min(this.mouse.down.ts, this.mouse.position.ts);
