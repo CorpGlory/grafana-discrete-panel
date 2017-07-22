@@ -284,6 +284,10 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     }
   }
 
+  get _isTooltipOrderReversed() {
+    return this.panel.tooltip.sort === 2;
+  }
+
   _getCurrentTimeFormatted() {
     // Format might be idfferent 
     // see https://github.com/grafana/grafana/blob/32f9a42d5e931be549ff9f169468b404af9a6b21/public/app/plugins/panel/graph/graph_tooltip.js#L212
@@ -337,7 +341,11 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
     var body = `<div class="graph-tooltip-time"> ${this._getCurrentTimeFormatted()} </div>`;
 
-    _.each(infos, (info, i) => {
+    var items = infos;
+    if(this._isTooltipOrderReversed) {
+      _.reverse(items);
+    }
+    _.each(items, (info, i) => {
 
       var color = this.getColor(info.val);
       var seriesName = this.data[i].name;
@@ -376,8 +384,13 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     }
 
     var body = `<div class="graph-tooltip-time"> ${this._getCurrentTimeFormatted()} </div>`;
+
+    var items = points;
+    if(this._isTooltipOrderReversed) {
+      _.reverse(items);
+    }
     
-    _.each(points, (point, i) => {
+    _.each(items, (point, i) => {
 
       var from = point.start;
       var to = point.start + point.ms;
@@ -651,7 +664,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   }
 
   onConfigChanged() {
-    //console.log( "Config changed...");
     this.isTimeline = this.panel.display == 'timeline';
     this.render();
   }
