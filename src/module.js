@@ -297,7 +297,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     var time = point.ms;
     var val = point.val;
 
-    body += '<div class="graph-tooltip-time">' + val + '</div>';
+    var body = '<div class="graph-tooltip-time">' + val + '</div>';
 
     body += "<center>"
     body += this.dashboard.formatDate(moment(from));
@@ -722,24 +722,21 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   onGraphHover(evt, showTT, isExternal) {
     this.externalPT = isExternal;
     if(!this.data) {
-      this.clearTT(); // make sure it is hidden
-      this.onRender(); // refresh the view
+      this.clearTT();
+      this.onRender();
       return;
     }
+
+    
 
     if(this.mouse.down != null) {
       var from = Math.min(this.mouse.down.ts, this.mouse.position.ts);
       var to   = Math.max(this.mouse.down.ts, this.mouse.position.ts);
       var time = to - from;
-      
-      var point = {
-        start: from,
-        ms: time,
-        val: "Zoom To:" 
-      };
+      this.hoverPoint = { start: from, ms: time, val: "Zoom To:" };
 
-      this._showSelectionTooltip(evt, point, isExternal);
-      this.onRender(); // refresh the view
+      this._showSelectionTooltip(evt, this.hoverPoint, isExternal);
+      this.onRender();
       return;
     }
 
@@ -789,6 +786,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   }
 
   onMouseClicked(where) {
+    var pt = this.hoverPoint;
     if(pt && pt.start) {
       var range = { from: moment.utc(pt.start), to: moment.utc(pt.start + pt.ms) };
       this.timeSrv.setTime(range);
@@ -802,6 +800,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   }
 
   _clear() {
+    this.hoverPoint = null;
     this.mouse.position = null;
     this.mouse.down = null;
     $(this.canvas).css('cursor', 'wait');
