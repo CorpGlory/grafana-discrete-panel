@@ -21,7 +21,8 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     // Set and populate defaults
     var panelDefaults = {
       display: 'timeline',
-      rowHeight: 50,
+      rowHeight: 40,
+      rowMargin: 1,
       valueMaps: [
         { value: 'null', op: '=', text: 'N/A' }
       ],
@@ -92,7 +93,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     var rows = this.data.length;
     var rowHeight = this.panel.rowHeight;
 
-    var height = rowHeight * rows;
+    var height = rowHeight * rows - this.panel.rowMargin;
     var width = rect.width;
     this.canvas.width = width * this._devicePixelRatio;
     this.canvas.height = height * this._devicePixelRatio;
@@ -117,11 +118,12 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     var elapsed = this.range.to - this.range.from;
 
     _.forEach(this.data, metric => {
-      var centerV = top + (rowHeight / 2);
+      var rectHeight = rowHeight - this.panel.rowMargin;
+      var centerV = top + (rectHeight / 2);
 
       // The no-data line
       ctx.fillStyle = this.panel.backgroundColor;
-      ctx.fillRect(0, top, width, rowHeight);
+      ctx.fillRect(0, top, width, rectHeight);
 
       /*if(!this.panel.writeMetricNames) {
         ctx.fillStyle = "#111111";
@@ -137,7 +139,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
             var xt = Math.max(point.start - this.range.from, 0);
             point.x = (xt / elapsed) * width;
             ctx.fillStyle = this.getColor(point.val);
-            ctx.fillRect(point.x, top, width, rowHeight);
+            ctx.fillRect(point.x, top, width, rectHeight);
 
             if(this.panel.writeAllValues) {
               ctx.fillStyle = this.panel.valueTextColor;
@@ -156,7 +158,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           var xt = Math.max(start - this.range.from, 0);
           point.x = (xt / elapsed) * width;
           ctx.fillStyle = this.getColor(point.val);
-          ctx.fillRect(point.x, top, width, rowHeight);
+          ctx.fillRect(point.x, top, width, rectHeight);
 
           if(this.panel.writeAllValues) {
             ctx.fillStyle = this.panel.valueTextColor;
@@ -168,14 +170,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         }
       } else {
         console.log("Not supported yet...", this);
-      }
-
-      if(top > 0) {
-        ctx.strokeStyle = this.panel.lineColor;
-        ctx.beginPath();
-        ctx.moveTo(0, top);
-        ctx.lineTo(width, top);
-        ctx.stroke();
       }
 
       ctx.fillStyle = "#000000";
@@ -219,12 +213,12 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           ctx.globalCompositeOperation = 'destination-out';
           ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
           ctx.beginPath();
-          ctx.fillRect(0, top, point.x, rowHeight);
+          ctx.fillRect(0, top, point.x, rectHeight);
           ctx.fill();
 
           if(next != null) {
             ctx.beginPath();
-            ctx.fillRect(next.x, top, width, rowHeight);
+            ctx.fillRect(next.x, top, width, rectHeight);
             ctx.fill();
           }
           ctx.globalCompositeOperation = 'source-over';
@@ -647,7 +641,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   };
 
   addRangeMap() {
-    this.panel.rangeMaps.push({from: '', to: '', text: ''});
+    this.panel.rangeMaps.push({ from:'', to: '', text:'' });
   }
 
   onConfigChanged() {
