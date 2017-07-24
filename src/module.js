@@ -4,6 +4,7 @@ import { DistinctPoints } from './points';
 import config from 'app/core/config';
 import appEvents from 'app/core/app_events';
 import kbn from 'app/core/utils/kbn';
+import grafanaColors from 'app/core/utils/colors';
 
 import _ from 'lodash';
 import moment from 'moment';
@@ -490,38 +491,21 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     if(_.has(this.colorMap, val)) {
       return this.colorMap[val];
     }
-
-    var palet = [
-      '#FF4444',
-      '#9933CC',
-      '#32D1DF',
-      '#ed2e18',
-      '#CC3900',
-      '#F79520',
-      '#33B5E5'
-    ];
-
-    return palet[Math.abs(this.hashCode(val + '')) % palet.length];
+    if(this._colorsPaleteCash[val] === undefined) {
+      var c = grafanaColors[this._colorsPaleteCash.length % grafanaColors.length];
+      this._colorsPaleteCash[val] = c;
+      this._colorsPaleteCash.length++;
+    }
+    return this._colorsPaleteCash[val];
   }
 
   randomColor() {
     var letters = 'ABCDE'.split('');
     var color = '#';
-    for (var i=0; i<3; i++ ) {
-        color += letters[Math.floor(Math.random() * letters.length)];
+    for (var i = 0; i < 3; i++) {
+      color += letters[Math.floor(Math.random() * letters.length)];
     }
     return color;
-  }
-
-  hashCode(str){
-    var hash = 0;
-    if (str.length == 0) return hash;
-    for (var i = 0; i < str.length; i++) {
-      var char = str.charCodeAt(i);
-      hash = ((hash<<5)-hash)+char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash;
   }
 
   // Copied from Metrics Panel, only used to expand the 'from' query
@@ -615,13 +599,16 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   updateColorInfo() {
     var cm = {};
-    for(var i=0; i<this.panel.colorMaps.length; i++) {
+    for(var i = 0; i < this.panel.colorMaps.length; i++) {
       var m = this.panel.colorMaps[i];
       if(m.text) {
         cm[m.text] = m.color;
       }
     }
     this.colorMap = cm;
+
+    this._colorsPaleteCash = {};
+    this._colorsPaleteCash.length = 0;
     this.render();
   }
 
