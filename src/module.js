@@ -122,8 +122,8 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       var rectHeight = rowHeight - this.panel.rowMargin;
       var centerV = top + (rectHeight / 2);
       
-      var labelPositionMetricName = top + rectHeight - 10;
-      var labelPositionLastValue = top + rectHeight - 10;
+      var labelPositionMetricName = top + rectHeight - this.panel.textSize / 2 - 3;
+      var labelPositionLastValue = top + rectHeight - this.panel.textSize / 2 - 3;
 
       var labelPositionValue = top + this.panel.textSize / 2 + 3;
 
@@ -439,6 +439,22 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   }
 
+  _showLegendTooltip(pos, info) {
+    var body = '<div class="graph-tooltip-time">'+ info.val +'</div>';
+
+    body += "<center>";
+    if(info.count > 1) {
+      body += info.count + " times<br/>";
+    }
+    body += moment.duration(info.ms).humanize();
+    if(info.count > 1) {
+      body += "<br/>total";
+    }
+    body += "</center>"
+
+    this.$tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
+  }
+
   formatValue(val, stats) {
 
     if(_.isNumber(val) && this.panel.rangeMaps) {
@@ -667,11 +683,9 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         if(_.isNil(dec)) {
           if(info.per>.98 && metric.changes.length>1) {
             dec = 2;
-          }
-          else if(info.per<0.02) {
+          } else if(info.per < 0.02) {
             dec = 2;
-          }
-          else {
+          } else {
             dec = 0;
           }
         }
@@ -683,7 +697,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         if(hassomething) {
           disp += ", ";
         }
-        disp += info.count+"x";
+        disp += info.count + "x";
       }
       disp += ")";
     }
