@@ -121,6 +121,11 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     _.forEach(this.data, metric => {
       var rectHeight = rowHeight - this.panel.rowMargin;
       var centerV = top + (rectHeight / 2);
+      
+      var labelPositionMetricName = top + rectHeight - 10;
+      var labelPositionLastValue = top + rectHeight - 10;
+
+      var labelPositionValue = top + this.panel.textSize / 2 + 3;
 
       // The no-data line
       ctx.fillStyle = this.panel.backgroundColor;
@@ -145,7 +150,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
             if(this.panel.writeAllValues) {
               ctx.fillStyle = this.panel.valueTextColor;
               ctx.textAlign = 'left';
-              ctx.fillText(point.val, point.x + 7, centerV);
+              ctx.fillText(point.val, point.x + 7, labelPositionValue);
             }
             lastBS = point.x;
           }
@@ -164,7 +169,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           if(this.panel.writeAllValues) {
             ctx.fillStyle = this.panel.valueTextColor;
             ctx.textAlign = 'left';
-            ctx.fillText(point.val, point.x+7, centerV);
+            ctx.fillText(point.val, point.x + 7, labelPositionValue);
           }
 
           start += point.ms;
@@ -181,7 +186,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       ) {
         ctx.fillStyle = this.panel.metricNameColor;
         ctx.textAlign = 'left';
-        ctx.fillText(metric.name, 10, centerV);
+        ctx.fillText(metric.name, 7, labelPositionMetricName);
       }
 
       ctx.textAlign = 'right';
@@ -201,7 +206,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
             }
           } else if(this.panel.display == 'stacked') {
             point = metric.legendInfo[0];
-            for(var i=0; i<metric.legendInfo.length; i++) {
+            for(var i = 0; i < metric.legendInfo.length; i++) {
               if(metric.legendInfo[i].x > this.mouse.position.x) {
                 next = metric.legendInfo[i];
                 break;
@@ -227,9 +232,10 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           // Now Draw the value
           ctx.fillStyle = "#000000";
           ctx.textAlign = 'left';
-          ctx.fillText(point.val, point.x + 7, centerV);
+          ctx.fillText(point.val, point.x + 7, labelPositionValue);
         } else if(this.panel.writeLastValue) {
-          ctx.fillText(point.val, width - 7, centerV);
+          ctx.textAlign = 'right';
+          ctx.fillText(point.val, width - 7, labelPositionLastValue);
         }
       }
 
