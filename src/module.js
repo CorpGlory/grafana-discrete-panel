@@ -45,6 +45,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       valueTextColor: '#000000',
       backgroundColor: 'rgba(128, 128, 128, 0.1)',
       lineColor: 'rgba(128, 128, 128, 1.0)',
+      crosshairColor: 'rgba(170, 0, 0, 0.80)', // see jquery.flot.crosshair.js
       textSize: 24,
       writeLastValue: true,
       writeAllValues: false,
@@ -252,28 +253,20 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         ctx.fill();
         ctx.globalCompositeOperation = 'source-over';
       } else {
-        ctx.strokeStyle = '#111';
-        ctx.beginPath();
-        ctx.moveTo(this.mouse.position.x, 0);
-        ctx.lineTo(this.mouse.position.x, height);
-        ctx.lineWidth = 3;
-        ctx.stroke();
 
         ctx.beginPath();
         ctx.moveTo(this.mouse.position.x, 0);
         ctx.lineTo(this.mouse.position.x, height);
-        ctx.strokeStyle = '#e22c14';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = this.panel.crosshairColor;
+        ctx.lineWidth = 1;
         ctx.stroke();
 
         if(this.externalPT && rows > 1) {
           ctx.beginPath();
           ctx.arc(this.mouse.position.x, this.mouse.position.y, 3, 0, 2 * Math.PI, false);
-          ctx.fillStyle = '#e22c14';
+          ctx.fillStyle = this.panel.crosshairColor;
           ctx.fill();
           ctx.lineWidth = 1;
-          ctx.strokeStyle = '#111';
-          ctx.stroke();
         }
       }
     }
