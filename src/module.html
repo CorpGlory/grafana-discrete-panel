@@ -7,14 +7,13 @@
             ng-show="ctrl.panel.showLegendValues"
             ng-repeat="info in metric.legendInfo | orderBy:ctrl.panel.legendSortBy | limitTo:ctrl.panel.legendMaxValues"
             style="cursor: default; display:inline-block; margin-right:15px;"
-            ng-mousemove="ctrl._showLegendTooltip($event, info);"
-            ng-mouseleave="ctrl.clearTT()"
+            ng-mousemove="ctrl.selectLegendItem($event, info, metric);"
+            ng-mouseleave="ctrl.deselectLegendItem()"
         >
             <div class="graph-legend-icon">
                 <i class="fa fa-minus pointer" style="color: {{ ctrl.getColor(info.val) }}"></i>
             </div>
-            <a class="graph-legend-alias pointer">{{ ctrl.getLegendDisplay( info, metric ) }}</a>
-            
+            <a class="graph-legend-alias pointer">{{ ctrl.getLegendDisplay(info, metric) }}</a>
         </div>
         <div ng-show="ctrl.panel.showTransitionCount" style="display:inline-block;">
             &nbsp; Transitions: {{ metric.transitionCount }}

@@ -52,7 +52,7 @@ export class DistinctPoints {
   }
 
   finish(ctrl) {
-    if(this.changes.length<1) {
+    if(this.changes.length < 1) {
       console.log( "no points found!" );
       return;
     }
@@ -114,7 +114,7 @@ export class DistinctPoints {
 
     _.forEach(valToInfo, value => {
       value.per = (value.ms/elapsed);
-      this.legendInfo.push( value );
+      this.legendInfo.push(value);
     });
     this.distinctValuesCount = _.size(this.legendInfo);
 
@@ -122,6 +122,5 @@ export class DistinctPoints {
     if(!ctrl.isTimeline) {
       this.legendInfo = _.orderBy(this.legendInfo, ['ms'], ['desc']);
     }
-    //console.log( "FINISH", this );
   }
 }

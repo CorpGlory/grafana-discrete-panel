@@ -1,5 +1,5 @@
-import { CanvasPanelCtrl } from './canvas-metric';
-import { DistinctPoints } from './points';
+import { CanvasPanelCtrl } from './canvas-panel';
+import { DistinctPoints } from './distinct-points';
 
 import config from 'app/core/config';
 import appEvents from 'app/core/app_events';
@@ -83,59 +83,38 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this.refresh();
   }
 
-  onRender() {
-
-    if(this.data == null || !(this.context)) {
-      return;
-    }
-
-    var rect = this.wrap.getBoundingClientRect();
-
-    var rows = this.data.length;
-    var rowHeight = this.panel.rowHeight;
-
-    var height = rowHeight * rows - this.panel.rowMargin;
-    var width = rect.width;
-    this.canvas.width = width * this._devicePixelRatio;
-    this.canvas.height = height * this._devicePixelRatio;
-
-    $(this.canvas).css('width', width + 'px');
-    $(this.canvas).css('height', height + 'px');
-    
+  _drawUnselectRect(x, y, w, h) {
     var ctx = this.context;
-    ctx.lineWidth = 1;
-    ctx.textBaseline = 'middle';
-    ctx.font = this.panel.textSize + 'px "Open Sans", Helvetica, Arial, sans-serif';
+    var tempComposition = ctx.globalCompositeOperation;
+    var tempFillStyle = ctx.fillStyle;
 
-    ctx.scale(this._devicePixelRatio, this._devicePixelRatio);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.beginPath();
+    ctx.fillRect(x, y, w, h);
+    ctx.fill();
 
-    // ctx.shadowOffsetX = 1;
-    // ctx.shadowOffsetY = 1;
-    // ctx.shadowColor = "rgba(0,0,0,0.3)";
-    // ctx.shadowBlur = 3;
+    ctx.fillStyle = tempFillStyle;
+    ctx.globalCompositeOperation = tempComposition;
+  }
+
+  _updateRenderDimensions() {
+    this._renderDimenstions = { };
+
+    var rect = this._renderDimenstions.rect = this.wrap.getBoundingClientRect();
+    var rows = this._renderDimenstions.rows = this.data.length;
+    var rowHeight = this._renderDimenstions.rowHeight = this.panel.rowHeight;
+    var height = this._renderDimenstions.height = rowHeight * rows - this.panel.rowMargin;
+    var width = this._renderDimenstions.width = rect.width;
+    var rectHeight = this._renderDimenstions.rectHeight = rowHeight - this.panel.rowMargin;
 
     var top = 0;
-
     var elapsed = this.range.to - this.range.from;
 
+    this._renderDimenstions.matrix = [];
     _.forEach(this.data, metric => {
-      var rectHeight = rowHeight - this.panel.rowMargin;
-      var centerV = top + (rectHeight / 2);
-      
-      var labelPositionMetricName = top + rectHeight - this.panel.textSize / 2 - 3;
-      var labelPositionLastValue = top + rectHeight - this.panel.textSize / 2 - 3;
+      var positions = [];
 
-      var labelPositionValue = top + this.panel.textSize / 2 + 3;
-
-      // The no-data line
-      ctx.fillStyle = this.panel.backgroundColor;
-      ctx.fillRect(0, top, width, rectHeight);
-
-      /*if(!this.panel.writeMetricNames) {
-        ctx.fillStyle = "#111111";
-        ctx.textAlign = 'left';
-        ctx.fillText("No Data", 10, centerV);
-      }*/
       if(this.isTimeline) {
         var lastBS = 0;
         var point = metric.changes[0];
@@ -143,139 +122,198 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           point = metric.changes[i];
           if(point.start <= this.range.to) {
             var xt = Math.max(point.start - this.range.from, 0);
-            point.x = (xt / elapsed) * width;
-            ctx.fillStyle = this.getColor(point.val);
-            ctx.fillRect(point.x, top, width, rectHeight);
-
-            if(this.panel.writeAllValues) {
-              ctx.fillStyle = this.panel.valueTextColor;
-              ctx.textAlign = 'left';
-              ctx.fillText(point.val, point.x + 7, labelPositionValue);
-            }
-            lastBS = point.x;
+            var x = (xt / elapsed) * width;
+            positions.push(x);
           }
         }
-      } else if(this.panel.display == 'stacked') {
+      }
+      
+      if(this.isStacked) {
         var point = null;
         var start = this.range.from;
         for(var i = 0; i < metric.legendInfo.length; i++) {
           point = metric.legendInfo[i];
-
           var xt = Math.max(start - this.range.from, 0);
-          point.x = (xt / elapsed) * width;
-          ctx.fillStyle = this.getColor(point.val);
-          ctx.fillRect(point.x, top, width, rectHeight);
-
-          if(this.panel.writeAllValues) {
-            ctx.fillStyle = this.panel.valueTextColor;
-            ctx.textAlign = 'left';
-            ctx.fillText(point.val, point.x + 7, labelPositionValue);
-          }
-
+          var x = (xt / elapsed) * width;
+          positions.push(x);
           start += point.ms;
         }
-      } else {
-        console.log("Not supported yet...", this);
       }
 
-      ctx.fillStyle = "#000000";
-
-      if(
-        this.panel.writeMetricNames &&
-        this.mouse.position == null
-      ) {
-        ctx.fillStyle = this.panel.metricNameColor;
-        ctx.textAlign = 'left';
-        ctx.fillText(metric.name, 7, labelPositionMetricName);
-      }
-
-      ctx.textAlign = 'right';
-
-      if(this.mouse.down == null) {
-        if(this.panel.tooltip.highlightOnMouseover && this.mouse.position != null) {
-          var next = null;
-
-          if(this.isTimeline) {
-            point = metric.changes[0];
-            for(var i = 0; i < metric.changes.length; i++) {
-              if(metric.changes[i].start > this.mouse.position.ts) {
-                next = metric.changes[i];
-                break;
-              }
-              point = metric.changes[i];
-            }
-          } else if(this.panel.display == 'stacked') {
-            point = metric.legendInfo[0];
-            for(var i = 0; i < metric.legendInfo.length; i++) {
-              if(metric.legendInfo[i].x > this.mouse.position.x) {
-                next = metric.legendInfo[i];
-                break;
-              }
-              point = metric.legendInfo[i];
-            }
-          }
-
-          // Fill canvas using 'destination-out' and alpha at 0.05
-          ctx.globalCompositeOperation = 'destination-out';
-          ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-          ctx.beginPath();
-          ctx.fillRect(0, top, point.x, rectHeight);
-          ctx.fill();
-
-          if(next != null) {
-            ctx.beginPath();
-            ctx.fillRect(next.x, top, width, rectHeight);
-            ctx.fill();
-          }
-          ctx.globalCompositeOperation = 'source-over';
-
-          // Now Draw the value
-          ctx.fillStyle = "#000000";
-          ctx.textAlign = 'left';
-          ctx.fillText(point.val, point.x + 7, labelPositionValue);
-        } else if(this.panel.writeLastValue) {
-          ctx.textAlign = 'right';
-          ctx.fillText(point.val, width - 7, labelPositionLastValue);
-        }
-      }
+      this._renderDimenstions.matrix.push({
+        y: top,
+        positions: positions
+      });
 
       top += rowHeight;
     });
+  }
 
-    if(this.isTimeline && this.mouse.position != null) {
-      if(this.mouse.down != null) {
-        var xmin = Math.min(this.mouse.position.x, this.mouse.down.x);
-        var xmax = Math.max(this.mouse.position.x, this.mouse.down.x);
+  _updateSelectionMatrix() {
+    var selectionPredicates = {
+      all: function() { return true; },
+      crosshairHover: function(i, j) {
+        if(j + 1 == this.data[i].changes.length) {
+          return this.data[i].changes[j].start <= this.mouse.position.ts;
+        }
+        return this.data[i].changes[j].start <= this.mouse.position.ts &&
+               this.mouse.position.ts < this.data[i].changes[j + 1].start;
+      }
+    };
 
-        // Fill canvas using 'destination-out' and alpha at 0.05
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-        ctx.beginPath();
-        ctx.fillRect(0, 0, xmin, height);
-        ctx.fill();
+    function getPridicate() {
+      if(this.panel.tooltip.highlightOnMouseover && this.mouse.position != null) {
+        return 'crosshairHover';
+      }
+      return 'all';
+    }
 
-        ctx.beginPath();
-        ctx.fillRect(xmax, 0, width, height);
-        ctx.fill();
-        ctx.globalCompositeOperation = 'source-over';
-      } else {
+    var pn = getPridicate.bind(this)();
+    var predicate = selectionPredicates[pn].bind(this);
+    this._selectionMatrix = [];
+    for(var i = 0; i < this._renderDimenstions.matrix.length; i++) {
+      var rs = [];
+      var r = this._renderDimenstions.matrix[i];
+      for(var j = 0; j < r.positions.length; j++) {
+        rs.push(predicate(i, j));
+      }
+      this._selectionMatrix.push(rs);
+    }
+  }
 
-        ctx.beginPath();
-        ctx.moveTo(this.mouse.position.x, 0);
-        ctx.lineTo(this.mouse.position.x, height);
-        ctx.strokeStyle = this.panel.crosshairColor;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+  _getVal(metricIndex, rectIndex) {
+    var point = undefined;
+    if(this.isTimeline) { point = this.data[metricIndex].changes[rectIndex]; }
+    if(this.isStacked) { point = this.data[metricIndex].legendInfo[rectIndex]; }
+    return point.val;
+  }
 
-        if(this.externalPT && rows > 1) {
-          ctx.beginPath();
-          ctx.arc(this.mouse.position.x, this.mouse.position.y, 3, 0, 2 * Math.PI, false);
-          ctx.fillStyle = this.panel.crosshairColor;
-          ctx.fill();
-          ctx.lineWidth = 1;
+  _updateCanvasSize() {
+    this.canvas.width = this._renderDimenstions.width * this._devicePixelRatio;
+    this.canvas.height = this._renderDimenstions.height * this._devicePixelRatio;
+
+    $(this.canvas).css('width', this._renderDimenstions.width + 'px');
+    $(this.canvas).css('height', this._renderDimenstions.height + 'px');
+
+    this.context.scale(this._devicePixelRatio, this._devicePixelRatio);
+  }
+
+  _renderRects() {
+    var matrix = this._renderDimenstions.matrix;
+    var ctx = this.context;
+    _.forEach(this.data, (metric, i) => {
+      var rowObj = matrix[i];
+      for(var j = 0; j < rowObj.positions.length; j++) {
+        var currentX = rowObj.positions[j];
+        var nextX = this._renderDimenstions.width;
+        if(j + 1 !== rowObj.positions.length) {
+          nextX = rowObj.positions[j + 1];
+        }
+        ctx.fillStyle = this.getColor(this._getVal(i, j));
+        var globalAlphaTemp = ctx.globalAlpha;
+        if(!this._selectionMatrix[i][j]) {
+          ctx.globalAlpha = 0.5;
+        }
+        ctx.fillRect(
+          currentX, matrix[i].y,
+          nextX - currentX, this._renderDimenstions.rectHeight
+        );
+        ctx.globalAlpha = globalAlphaTemp;
+      }
+    });
+  }
+
+  _renderLabels() {
+    var ctx = this.context;
+    ctx.lineWidth = 1;
+    ctx.textBaseline = 'middle';
+    ctx.font = this.panel.textSize + 'px "Open Sans", Helvetica, Arial, sans-serif';
+
+    _.forEach(this.data, (metric, i) => {
+      var { y, positions } = this._renderDimenstions.matrix[i];
+      var rectHeight = this._renderDimenstions.rectHeight;
+      
+      var centerV = y + (rectHeight / 2);
+      var labelPositionMetricName = y + rectHeight - this.panel.textSize / 2 - 3;
+      var labelPositionLastValue  = y + rectHeight - this.panel.textSize / 2 - 3;
+      var labelPositionValue      = y + this.panel.textSize / 2 + 3;
+
+      if(this.mouse.position == null) {
+        if(this.panel.writeMetricNames) {
+          ctx.fillStyle = this.panel.metricNameColor;
+          ctx.textAlign = 'left';
+          ctx.fillText(metric.name, 7, labelPositionMetricName);
+        }
+        if(this.panel.writeLastValue) {
+          var val = this._getVal(i, positions.length - 1);
+          ctx.fillStyle = this.panel.valueTextColor;
+          ctx.textAlign = 'right';
+          ctx.fillText(val, this._renderDimenstions.width - 7, labelPositionLastValue);
         }
       }
+      
+      ctx.fillStyle = this.panel.valueTextColor;
+      ctx.textAlign = 'left';
+      for(var j = 0; j < positions.length; j++) {
+        var val = this._getVal(i, j);
+        ctx.fillText(val, positions[j] + 7, labelPositionValue);
+      }
+
+    });
+
+  }
+
+  _renderCrosshair() {
+    if(!(this.isTimeline && this.mouse.position != null)) {
+      return;
     }
+    var ctx = this.context;
+    var rows = this.data.length;
+    var rowHeight = this.panel.rowHeight;
+    var height = rowHeight * rows - this.panel.rowMargin;
+    if(this.mouse.down != null) {
+      var xmin = Math.min(this.mouse.position.x, this.mouse.down.x);
+      var xmax = Math.max(this.mouse.position.x, this.mouse.down.x);
+
+      // Fill canvas using 'destination-out' and alpha at 0.05
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+      ctx.beginPath();
+      ctx.fillRect(0, 0, xmin, height);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.fillRect(xmax, 0, width, height);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(this.mouse.position.x, 0);
+      ctx.lineTo(this.mouse.position.x, height);
+      ctx.strokeStyle = this.panel.crosshairColor;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      if(this.externalPT && rows > 1) {
+        ctx.beginPath();
+        ctx.arc(this.mouse.position.x, this.mouse.position.y, 3, 0, 2 * Math.PI, false);
+        ctx.fillStyle = this.panel.crosshairColor;
+        ctx.fill();
+        ctx.lineWidth = 1;
+      }
+    }
+  }
+
+  onRender() {
+    if(this.data == null || !(this.context)) {
+      return;
+    }
+    this._updateRenderDimensions();
+    this._updateSelectionMatrix();
+    this._updateCanvasSize();
+    this._renderRects();
+    this._renderLabels();
+    this._renderCrosshair();
   }
 
   get _isTooltipOrderReversed() {
@@ -564,40 +602,37 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   }
 
   onDataReceived(dataList) {
-    $(this.canvas).css( 'cursor', 'pointer' );
+    $(this.canvas).css('cursor', 'pointer');
 
     var data = [];
-    _.forEach(dataList, (metric) => {
-      if('table'=== metric.type) {
-        if('time' != metric.columns[0].type) {
+    _.forEach(dataList, metric => {
+      if(metric.type === 'table') {
+        if(metric.columns[0].type !== 'time') {
           throw 'Expected a time column from the table format';
         }
 
         var last = null;
-        for(var i=1; i<metric.columns.length; i++) {
+        for(var i = 1; i < metric.columns.length; i++) {
           var res = new DistinctPoints(metric.columns[i].text);
-          for(var j=0; j<metric.rows.length; j++) {
+          for(var j = 0; j < metric.rows.length; j++) {
             var row = metric.rows[j];
-            res.add( row[0], this.formatValue( row[i] ) );
+            res.add(row[0], this.formatValue(row[i]));
           }
-          res.finish( this );
-          data.push( res );
+          res.finish(this);
+          data.push(res);
         }
-      }
-      else {
-        var res = new DistinctPoints( metric.target );
-        _.forEach(metric.datapoints, (point) => {
+      } else {
+        var res = new DistinctPoints(metric.target);
+        _.forEach(metric.datapoints, point => {
           res.add( point[1], this.formatValue(point[0]) );
         });
-        res.finish( this );
-        data.push( res );
+        res.finish(this);
+        data.push(res);
       }
     });
     this.data = data;
 
     this.onRender();
-
-    //console.log( 'data', dataList, this.data);
   }
 
   removeColorMap(map) {
@@ -625,7 +660,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     if(what == 'curent') {
       _.forEach(this.data, (metric) => {
         if(metric.legendInfo) {
-          _.forEach(metric.legendInfo, (info) => {
+          _.forEach(metric.legendInfo, info => {
             if(!_.has(info.val)) {
               this.panel.colorMaps.push({text: info.val, color: this.getColor(info.val) });
             }
@@ -661,6 +696,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   onConfigChanged() {
     this.isTimeline = this.panel.display == 'timeline';
+    this.isStacked = this.panel.display == 'stacked';
     this.render();
   }
 
@@ -702,6 +738,20 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       disp += ")";
     }
     return disp;
+  }
+
+  selectLegendItem(event, info, metric) {
+    this._showLegendTooltip(event, info);
+    this._selectedMetric = metric;
+    this._selectedInfo = info;
+    this.render();
+  }
+
+  deselectLegendItem() {
+    this._selectedMetric = undefined;
+    this._selectedInfo = undefined;
+    this.clearTT();
+    this.render();
   }
 
   //------------------
@@ -753,6 +803,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     
     var { items: js, selected } = this._getRowsToHover();
     
+    // TODO: use this._renderDimenstions for optimozation
     if(this.isTimeline) {
       var hovers = [];
       _.each(js, j => {

@@ -274,11 +274,6 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
       this.clearTT();
     }, scope);
 
-    // scope.$on('$destroy', () => {
-    //   this.$tooltip.destroy();
-    //   elem.off();
-    //   elem.remove();
-    // });
   }
 }
 
