@@ -294,45 +294,60 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   }
 
-  _renderCrosshair() {
-    if(!(this.isTimeline && this.mouse.position != null)) {
+  _renderSelection() {
+    if(this.mouse.down === null) {
       return;
     }
+    if(this.mouse.position === null) {
+      return;
+    }
+    if(!this.isTimeline) {
+      return;
+    }
+
+    var ctx = this.context;
+    var height = this._renderDimenstions.height;
+
+    var xmin = Math.min(this.mouse.position.x, this.mouse.down.x);
+    var xmax = Math.max(this.mouse.position.x, this.mouse.down.x);
+
+    ctx.fillStyle = "rgba(110, 110, 110, 0.5)";
+    ctx.strokeStyle="rgba(110, 110, 110, 0.5)";
+    ctx.beginPath();
+    ctx.fillRect(xmin, 0, xmax - xmin, height);
+    ctx.strokeRect(xmin, 0, xmax - xmin, height);
+  }
+
+  _renderCrosshair() {
+    if(this.mouse.down != null) {
+      return;
+    }
+    if(this.mouse.position === null) {
+      return;
+    }
+    if(!this.isTimeline) {
+      return;
+    }
+
     var ctx = this.context;
     var rows = this.data.length;
     var rowHeight = this.panel.rowHeight;
-    var height = rowHeight * rows - this.panel.rowMargin;
-    if(this.mouse.down != null) {
-      var xmin = Math.min(this.mouse.position.x, this.mouse.down.x);
-      var xmax = Math.max(this.mouse.position.x, this.mouse.down.x);
+    var height = this._renderDimenstions.height;
 
-      // Fill canvas using 'destination-out' and alpha at 0.05
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-      ctx.beginPath();
-      ctx.fillRect(0, 0, xmin, height);
-      ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(this.mouse.position.x, 0);
+    ctx.lineTo(this.mouse.position.x, height);
+    ctx.strokeStyle = this.panel.crosshairColor;
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
+    if(this.externalPT && rows > 1) {
       ctx.beginPath();
-      ctx.fillRect(xmax, 0, width, height);
+      ctx.arc(this.mouse.position.x, this.mouse.position.y, 3, 0, 2 * Math.PI, false);
+      ctx.fillStyle = this.panel.crosshairColor;
       ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
-    } else {
-      ctx.beginPath();
-      ctx.moveTo(this.mouse.position.x, 0);
-      ctx.lineTo(this.mouse.position.x, height);
-      ctx.strokeStyle = this.panel.crosshairColor;
       ctx.lineWidth = 1;
-      ctx.stroke();
-
-      if(this.externalPT && rows > 1) {
-        ctx.beginPath();
-        ctx.arc(this.mouse.position.x, this.mouse.position.y, 3, 0, 2 * Math.PI, false);
-        ctx.fillStyle = this.panel.crosshairColor;
-        ctx.fill();
-        ctx.lineWidth = 1;
-      }
-    }
+    } 
   }
 
   onRender() {
@@ -344,6 +359,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this._updateCanvasSize();
     this._renderRects();
     this._renderLabels();
+    this._renderSelection();
     this._renderCrosshair();
   }
 
