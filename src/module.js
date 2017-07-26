@@ -243,7 +243,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         ctx.fillStyle = this.getColor(this._getVal(i, j));
         var globalAlphaTemp = ctx.globalAlpha;
         if(!this._selectionMatrix[i][j]) {
-          ctx.globalAlpha = 0.5;
+          ctx.globalAlpha = 0.3;
         }
         ctx.fillRect(
           currentX, matrix[i].y,
