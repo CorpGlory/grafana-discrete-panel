@@ -153,17 +153,48 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     var selectionPredicates = {
       all: function() { return true; },
       crosshairHover: function(i, j) {
-        if(j + 1 == this.data[i].changes.length) {
+        if(j + 1 === this.data[i].changes.length) {
           return this.data[i].changes[j].start <= this.mouse.position.ts;
         }
         return this.data[i].changes[j].start <= this.mouse.position.ts &&
                this.mouse.position.ts < this.data[i].changes[j + 1].start;
+      },
+      mouseX: function(i, j) {
+        var row = this._renderDimenstions.matrix[i];
+        if(j + 1 === row.positions.length) {
+          return row.positions[j] <= this.mouse.position.x;
+        }
+        return row.positions[j] <= this.mouse.position.x &&
+               this.mouse.position.x < row.positions[j + 1];
+      },
+      metric: function(i) {
+        return this.data[i] === this._selectedMetric;
+      },
+      legendItem: function(i, j) {
+        if(this.data[i] !== this._selectedMetric) {
+          return false;
+        }
+        return this._selectedLegendItem.val === this._getVal(i, j);
       }
     };
 
     function getPridicate() {
+      if(this._selectedLegendItem !== undefined) {
+        return 'legendItem';
+      };
+      if(this._selectedMetric !== undefined) {
+        return 'metric';
+      };
+      if(this.mouse.down !== null) {
+        return 'all';  
+      }
       if(this.panel.tooltip.highlightOnMouseover && this.mouse.position != null) {
-        return 'crosshairHover';
+        if(this.isTimeline) {
+          return 'crosshairHover';
+        }
+        if(this.isStacked) {
+          return 'mouseX';
+        }
       }
       return 'all';
     }
@@ -477,7 +508,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
   }
 
-  _showLegendTooltip(pos, info) {
+  showLegendTooltip(pos, info) {
     var body = '<div class="graph-tooltip-time">'+ info.val +'</div>';
 
     body += "<center>";
@@ -740,16 +771,21 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     return disp;
   }
 
-  selectLegendItem(event, info, metric) {
-    this._showLegendTooltip(event, info);
+  selectLegendMetric(event, metric) {
     this._selectedMetric = metric;
-    this._selectedInfo = info;
     this.render();
   }
 
-  deselectLegendItem() {
+  selectLegendItem(event, item, metric) {
+    this.showLegendTooltip(event, item);
+    this._selectedMetric = metric;
+    this._selectedLegendItem = item;
+    this.render();
+  }
+
+  deselectLegend() {
     this._selectedMetric = undefined;
-    this._selectedInfo = undefined;
+    this._selectedLegendItem = undefined;
     this.clearTT();
     this.render();
   }

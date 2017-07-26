@@ -2,13 +2,21 @@
 
 <section  ng-show="ctrl.panel.showLegend" style="margin-top:5px">
     <div ng-repeat="metric in ctrl.data">
-        <span ng-show="ctrl.panel.showLegendNames" style="position: relative; top: -4px">{{ metric.name }}: </span>
+        <span 
+            ng-show="ctrl.panel.showLegendNames" 
+            style="position: relative; top: -4px; cursor: pointer"
+            ng-mouseenter="ctrl.selectLegendMetric($event, metric);"
+            ng-mouseleave="ctrl.deselectLegend()"
+        >
+            {{ metric.name }}:
+        </span>
         <div 
             ng-show="ctrl.panel.showLegendValues"
             ng-repeat="info in metric.legendInfo | orderBy:ctrl.panel.legendSortBy | limitTo:ctrl.panel.legendMaxValues"
             style="cursor: default; display:inline-block; margin-right:15px;"
-            ng-mousemove="ctrl.selectLegendItem($event, info, metric);"
-            ng-mouseleave="ctrl.deselectLegendItem()"
+            ng-mouseenter="ctrl.selectLegendItem($event, info, metric);"
+            ng-mousemove="ctrl.showLegendTooltip($event, info);"
+            ng-mouseleave="ctrl.deselectLegend()"
         >
             <div class="graph-legend-icon">
                 <i class="fa fa-minus pointer" style="color: {{ ctrl.getColor(info.val) }}"></i>
