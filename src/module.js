@@ -219,6 +219,14 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     return point.val;
   }
 
+  _getWidth(metricIndex, rectIndex) {
+    var positions = this._renderDimenstions.matrix[metricIndex].positions;
+    if(rectIndex + 1 === positions.length) {
+      return this._renderDimenstions.width - positions[rectIndex];
+    }
+    return positions[rectIndex + 1] - positions[rectIndex];
+  }
+
   _updateCanvasSize() {
     this.canvas.width = this._renderDimenstions.width * this._devicePixelRatio;
     this.canvas.height = this._renderDimenstions.height * this._devicePixelRatio;
@@ -255,15 +263,30 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   }
 
   _renderLabels() {
+
+    const LEBELS_PADDING = 8;
     var ctx = this.context;
     ctx.lineWidth = 1;
     ctx.textBaseline = 'middle';
     ctx.font = this.panel.textSize + 'px "Open Sans", Helvetica, Arial, sans-serif';
 
+    function findLength(text, width) {
+      var length = 1;
+      for(; length < text.length; length++) {
+        var testLine = text.substr(0, length);
+        var measure = ctx.measureText(testLine);
+        if(measure.width > width) {
+          break;
+        }
+      }
+
+      return text.substr(0, length);
+    }
+
     _.forEach(this.data, (metric, i) => {
       var { y, positions } = this._renderDimenstions.matrix[i];
       var rectHeight = this._renderDimenstions.rectHeight;
-      
+
       var centerV = y + (rectHeight / 2);
       var labelPositionMetricName = y + rectHeight - this.panel.textSize / 2 - 3;
       var labelPositionLastValue  = y + rectHeight - this.panel.textSize / 2 - 3;
@@ -273,13 +296,13 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         if(this.panel.writeMetricNames) {
           ctx.fillStyle = this.panel.metricNameColor;
           ctx.textAlign = 'left';
-          ctx.fillText(metric.name, 7, labelPositionMetricName);
+          ctx.fillText(metric.name, LEBELS_PADDING, labelPositionMetricName);
         }
         if(this.panel.writeLastValue) {
           var val = this._getVal(i, positions.length - 1);
           ctx.fillStyle = this.panel.valueTextColor;
           ctx.textAlign = 'right';
-          ctx.fillText(val, this._renderDimenstions.width - 7, labelPositionLastValue);
+          ctx.fillText(val, this._renderDimenstions.width - LEBELS_PADDING, labelPositionLastValue);
         }
       }
       
@@ -287,7 +310,9 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       ctx.textAlign = 'left';
       for(var j = 0; j < positions.length; j++) {
         var val = this._getVal(i, j);
-        ctx.fillText(val, positions[j] + 7, labelPositionValue);
+        var width = this._getWidth(i, j);
+        var cval = findLength(val, width - LEBELS_PADDING * 2);
+        ctx.fillText(cval, positions[j] + LEBELS_PADDING, labelPositionValue);
       }
 
     });
@@ -442,7 +467,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
           (${info.count})
         </div>
         <div class="graph-tooltip-value">
-          
           ${moment.duration(info.ms).humanize()}
         </div>
       </div>
