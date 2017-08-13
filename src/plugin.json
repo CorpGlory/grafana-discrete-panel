@@ -1,12 +1,12 @@
 {
   "type": "panel",
-  "name": "Discrete",
-  "id": "natel-discrete-panel",
+  "name": "Discrete-2",
+  "id": "natel-discrete-panel-2",
 
   "info": {
-    "description": "Discrete Events grafana",
+    "description": "Discrete Events grafana with improvements",
     "author": {
-      "name": "Natel Energy"
+      "name": "CorpGlory"
     },
     "keywords": [ "discrete", "events", "strings" ],
     "logos": {
@@ -14,9 +14,9 @@
       "large": "img/discrete_logo.svg"
     },
     "links": [
-      {"name": "Project site", "url": "https://github.com/NatelEnergy/grafana-discrete-panel"},
-      {"name": "MIT License",  "url": "https://github.com/NatelEnergy/grafana-discrete-panel/blob/master/LICENSE"},
-      {"name": "Natel Energy", "url": "http://www.natelenergy.com/"}
+      {"name": "Project site", "url": "https://github.com/corpglory/grafana-discrete-panel"},
+      {"name": "MIT License",  "url": "https://github.com/corpglory/grafana-discrete-panel/blob/master/LICENSE"},
+      {"name": "CorpGlory", "url": "http://www.corpglory.com/"}
     ],
     "screenshots": [
       { "name": "Single State",     "path": "img/screenshot-single-1.png"  },

@@ -14,11 +14,13 @@
     "plugin",
     "panel"
   ],
-  "author": "ryantxu",
+  "author": [
+    "ryantxu", "jonyrock"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://code.ebertech.ca/grafana/discrete-panel"
+    "url": "git@github.com:corpglory/grafana-discrete-panel.git"
   },
   "devDependencies": {
     "babel": "~6.5.1",
