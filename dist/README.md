@@ -10,3 +10,6 @@ The main goal is to make to look and feel as [Graph Panel](http://docs.grafana.o
 
 ### Improvemets
 
+* Retina rendering
+* 
+

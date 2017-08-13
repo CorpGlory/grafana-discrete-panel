@@ -1,7 +1,7 @@
 {
   "type": "panel",
   "name": "Discrete-2",
-  "id": "natel-discrete-panel-2",
+  "id": "coprglory-discrete-panel",
 
   "info": {
     "description": "Discrete Events grafana with improvements",
@@ -27,7 +27,7 @@
       { "name": "Options",          "path": "img/screenshot-options-1.png" },
       { "name": "Legend",           "path": "img/screenshot-options-2.png" }
     ],
-    "version": "0.0.6",
+    "version": "2.0.1",
     "updated": "2017-08-13"
   },
 

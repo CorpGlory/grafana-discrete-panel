@@ -272,7 +272,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 
     function findLength(text, width) {
       var length = 1;
-      for(; length < text.length; length++) {
+      for(; length < text.length + 1; length++) {
         var testLine = text.substr(0, length);
         var measure = ctx.measureText(testLine);
         if(measure.width > width) {
@@ -280,7 +280,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         }
       }
 
-      return text.substr(0, length);
+      return text.substr(0, length - 1);
     }
 
     _.forEach(this.data, (metric, i) => {

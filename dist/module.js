@@ -347,7 +347,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
 
             function findLength(text, width) {
               var length = 1;
-              for (; length < text.length; length++) {
+              for (; length < text.length + 1; length++) {
                 var testLine = text.substr(0, length);
                 var measure = ctx.measureText(testLine);
                 if (measure.width > width) {
@@ -355,7 +355,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
                 }
               }
 
-              return text.substr(0, length);
+              return text.substr(0, length - 1);
             }
 
             _.forEach(this.data, function (metric, i) {

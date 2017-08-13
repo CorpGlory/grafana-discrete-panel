@@ -1,7 +1,7 @@
 {
   "type": "panel",
   "name": "Discrete-2",
-  "id": "natel-discrete-panel-2",
+  "id": "coprglory-discrete-panel",
 
   "info": {
     "description": "Discrete Events grafana with improvements",
