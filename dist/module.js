@@ -136,10 +136,10 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
         }, {
           key: 'onInitEditMode',
           value: function onInitEditMode() {
-            this.addEditorTab('Options', 'public/plugins/natel-discrete-panel/editor.options.html', 1);
-            this.addEditorTab('Legend', 'public/plugins/natel-discrete-panel/editor.legend.html', 3);
-            this.addEditorTab('Colors', 'public/plugins/natel-discrete-panel/editor.colors.html', 4);
-            this.addEditorTab('Mappings', 'public/plugins/natel-discrete-panel/editor.mappings.html', 5);
+            this.addEditorTab('Options', this.panelPath + 'editor.options.html', 1);
+            this.addEditorTab('Legend', this.panelPath + 'editor.legend.html', 3);
+            this.addEditorTab('Colors', this.panelPath + 'editor.colors.html', 4);
+            this.addEditorTab('Mappings', this.panelPath + 'editor.mappings.html', 5);
             this.editorTabIndex = 1;
             this.refresh();
           }
@@ -1009,6 +1009,18 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
             $(this.canvas).css('cursor', 'wait');
             appEvents.emit('graph-hover-clear');
             this.render();
+          }
+        }, {
+          key: 'panelPath',
+          get: function get() {
+            if (!this._panelPath) {
+              var panels = window['grafanaBootData'].settings.panels;
+              var thisPanel = panels[this.pluginId];
+              // the system loader preprends publib to the url,
+              // add a .. to go back one level
+              this._panelPath = '../' + thisPanel.baseUrl + '/';
+            }
+            return this._panelPath;
           }
         }, {
           key: '_isTooltipOrderReversed',
