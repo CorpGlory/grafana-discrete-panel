@@ -1,7 +1,7 @@
 {
-  "name": "natel-discrete-panel",
-  "version": "0.0.6",
-  "description": "Discrete Events in Grafana",
+  "name": "grafana-discrete-panel-2",
+  "version": "2.0.1",
+  "description": "Discrete Events in Grafana, improved",
   "main": "src/module.js",
   "scripts": {
     "lint": "eslint --color .",
@@ -14,8 +14,13 @@
     "plugin",
     "panel"
   ],
-  "author": [
-    "ryantxu", "jonyrock"
+  "contributors": [
+    {
+      "name": "ryantxu"
+    },
+    { 
+      "name": "jonyrock"
+    }
   ],
   "license": "MIT",
   "repository": {
