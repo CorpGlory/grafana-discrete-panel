@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'app/core/app_events', 'lodash', 'moment', 'angular'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'app/core/app_events', 'lodash', 'moment'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, appEvents, _, moment, angular, _createClass, CanvasPanelCtrl;
+  var MetricsPanelCtrl, appEvents, _, moment, _createClass, CanvasPanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -44,8 +44,6 @@ System.register(['app/plugins/sdk', 'app/core/app_events', 'lodash', 'moment', '
       _ = _lodash.default;
     }, function (_moment) {
       moment = _moment.default;
-    }, function (_angular) {
-      angular = _angular.default;
     }],
     execute: function () {
       _createClass = function () {

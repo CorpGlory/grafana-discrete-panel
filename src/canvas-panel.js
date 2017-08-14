@@ -4,7 +4,6 @@ import appEvents from 'app/core/app_events';
 
 import _ from 'lodash';
 import moment from 'moment';
-import angular from 'angular';
 
 
 // Expects a template with:
@@ -118,7 +117,7 @@ export class CanvasPanelCtrl extends MetricsPanelCtrl {
     var elapsed = this.range.to - this.range.from;
     var rect = this.canvas.getBoundingClientRect();
     var x = evt.offsetX; // - rect.left;
-    var ts = this.range.from + (elapsed*(x/parseFloat(rect.width)));
+    var ts = this.range.from + (elapsed * (x / parseFloat(rect.width)));
     var y = evt.clientY - rect.top;
 
     return {

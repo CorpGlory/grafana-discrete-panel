@@ -103,7 +103,8 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
             backgroundColor: 'rgba(128, 128, 128, 0.1)',
             lineColor: 'rgba(128, 128, 128, 1.0)',
             crosshairColor: 'rgba(170, 0, 0, 0.80)', // see jquery.flot.crosshair.js
-            textSize: 24,
+            textSize: 12,
+            textPadding: 4,
             writeLastValue: true,
             writeAllValues: false,
             writeMetricNames: false,
@@ -339,7 +340,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
           value: function _renderLabels() {
             var _this4 = this;
 
-            var LEBELS_PADDING = 8;
+            var LEBELS_PADDING = this.panel.textPadding;
             var ctx = this.context;
             ctx.lineWidth = 1;
             ctx.textBaseline = 'middle';
@@ -366,9 +367,9 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
               var rectHeight = _this4._renderDimenstions.rectHeight;
 
               var centerV = y + rectHeight / 2;
-              var labelPositionMetricName = y + rectHeight - _this4.panel.textSize / 2 - 3;
-              var labelPositionLastValue = y + rectHeight - _this4.panel.textSize / 2 - 3;
-              var labelPositionValue = y + _this4.panel.textSize / 2 + 3;
+              var labelPositionMetricName = y + rectHeight - _this4.panel.textSize / 2 - LEBELS_PADDING;
+              var labelPositionLastValue = y + rectHeight - _this4.panel.textSize / 2 - LEBELS_PADDING;
+              var labelPositionValue = y + _this4.panel.textSize / 2 + LEBELS_PADDING;
 
               if (_this4.mouse.position == null) {
                 if (_this4.panel.writeMetricNames) {
