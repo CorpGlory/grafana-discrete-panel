@@ -1,13 +1,18 @@
 .dicrete-panel-legend {
-  margin-top: 5px
+  margin-top: 5px;
+  font-size: 12px;
 }
 
 .dicrete-panel-legend-item {
-  height: 20px;
+}
+
+.dicrete-panel-label-name {
+  
 }
 
 .dicrete-panel-legend-item-value {
   cursor: default; 
   display: inline-block; 
   padding-right: 14px;
+  height: 12px;
 }

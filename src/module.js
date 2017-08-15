@@ -43,6 +43,20 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         shared: true,
         sort: 0
       },
+      legend: {
+        show: true,
+        showPercent: false,
+        showNames: true,
+        showValues: true,
+        showTransitionCount: false,
+        showDistinctCount: false,
+        showCounts: false,
+        showTime: false,
+        sortBy: '-ms',
+        layoutMode: 'sequence',
+        percentDecimals: undefined,
+        textSize: 12
+      },
       metricNameColor: '#000000',
       valueTextColor: '#000000',
       backgroundColor: 'rgba(128, 128, 128, 0.1)',
@@ -52,12 +66,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       textPadding: 4,
       writeLastValue: true,
       writeAllValues: false,
-      writeMetricNames: false,
-      showLegend: true,
-      showLegendNames: true,
-      showLegendValues: true,
-      showLegendPercent: true,
-      legendSortBy: '-ms'
+      writeMetricNames: false
     };
 
     _.defaults(this.panel, panelDefaults);
@@ -786,43 +795,37 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
   }
 
   getLegendDisplay(info, metric) {
-    var disp = info.val;
-    if(this.panel.showLegendPercent || this.panel.showLegendCounts || this.panel.showLegendTime) {
-      disp += " (";
-      var hassomething = false;
-      if(this.panel.showLegendTime) {
-        disp += moment.duration(info.ms).humanize();
-        hassomething = true;
-      }
+    var values = [];
 
-      if(this.panel.showLegendPercent) {
-        if(hassomething) {
-          disp += ", ";
-        }
-
-        var dec = this.panel.legendPercentDecimals;
-        if(_.isNil(dec)) {
-          if(info.per>.98 && metric.changes.length>1) {
-            dec = 2;
-          } else if(info.per < 0.02) {
-            dec = 2;
-          } else {
-            dec = 0;
-          }
-        }
-        disp += kbn.valueFormats.percentunit(info.per, dec);
-        hassomething = true;
-      }
-
-      if(this.panel.showLegendCounts) {
-        if(hassomething) {
-          disp += ", ";
-        }
-        disp += info.count + "x";
-      }
-      disp += ")";
+    if(this.panel.legend.showTime) {
+      values.push(moment.duration(info.ms).humanize());
     }
-    return disp;
+
+    if(this.panel.legend.showCounts) {
+      values.push(info.count + "x");
+    }
+    
+    if(this.panel.legend.showPercent) {
+      var dec = this.panel.legend.percentDecimals;
+      if(_.isNil(dec)) {
+        if(info.per > .98 && metric.changes.length > 1) {
+          dec = 2;
+        } else if(info.per < 0.02) {
+          dec = 2;
+        } else {
+          dec = 0;
+        }
+      }
+      values.push(kbn.valueFormats.percentunit(info.per, dec));
+    }
+
+    if(values.length !== 0) {
+      return info.val + ` (${values.join(', ')})`;
+    } else {
+      return info.val;
+    }
+      
+    
   }
 
   selectLegendMetric(event, metric) {

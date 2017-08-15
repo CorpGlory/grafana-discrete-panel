@@ -1,19 +1,19 @@
 <div class="canvas-spot" style="width:100%;"></div>
 
-<section ng-show="ctrl.panel.showLegend" class="dicrete-panel-legend">
+<section ng-show="ctrl.panel.legend.show" class="dicrete-panel-legend">
   <div ng-repeat="metric in ctrl.data" class="dicrete-panel-legend-item">
-    <span 
-      ng-show="ctrl.panel.showLegendNames" 
-      style="position: relative; top: -4px; cursor: pointer"
+    <span
+      class="dicrete-panel-label-name"
+      ng-show="ctrl.panel.legend.showNames"
       ng-mouseenter="ctrl.selectLegendMetric($event, metric);"
       ng-mouseleave="ctrl.deselectLegend()"
     >
       {{ metric.name }}:
     </span>
     <div
-      ng-show="ctrl.panel.showLegendValues"
-      ng-repeat="info in metric.legendInfo | orderBy:ctrl.panel.legendSortBy | limitTo:ctrl.panel.legendMaxValues"
       class="dicrete-panel-legend-item-value"
+      ng-show="ctrl.panel.legend.showValues"
+      ng-repeat="info in metric.legendInfo | orderBy:ctrl.panel.legend.sortBy | limitTo:ctrl.panel.legendMaxValues"
       ng-mouseenter="ctrl.selectLegendItem($event, info, metric);"
       ng-mousemove="ctrl.showLegendTooltip($event, info);"
       ng-mouseleave="ctrl.deselectLegend()"
@@ -23,10 +23,10 @@
       </div>
       <a class="graph-legend-alias pointer">{{ ctrl.getLegendDisplay(info, metric) }}</a>
     </div>
-    <div ng-show="ctrl.panel.showTransitionCount" style="display:inline-block;">
+    <div ng-show="ctrl.panel.legend.showTransitionCount" style="display:inline-block;">
       &nbsp; Transitions: {{ metric.transitionCount }}
     </div>
-    <div ng-show="ctrl.panel.showDistinctCount" style="display:inline-block;">
+    <div ng-show="ctrl.panel.legend.showDistinctCount" style="display:inline-block;">
       &nbsp; Distinct: {{ metric.distinctValuesCount }}
     </div>
   </div>
