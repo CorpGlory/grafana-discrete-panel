@@ -10,6 +10,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import angular from 'angular';
 
+import './style.css!'
+
 
 class DiscretePanelCtrl extends CanvasPanelCtrl {
 
@@ -957,3 +959,5 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
 DiscretePanelCtrl.templateUrl = 'module.html';
 
 export { DiscretePanelCtrl as PanelCtrl };
+
+

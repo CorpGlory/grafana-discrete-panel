@@ -1,33 +1,33 @@
 <div class="canvas-spot" style="width:100%;"></div>
 
-<section  ng-show="ctrl.panel.showLegend" style="margin-top:5px">
-    <div ng-repeat="metric in ctrl.data">
-        <span 
-            ng-show="ctrl.panel.showLegendNames" 
-            style="position: relative; top: -4px; cursor: pointer"
-            ng-mouseenter="ctrl.selectLegendMetric($event, metric);"
-            ng-mouseleave="ctrl.deselectLegend()"
-        >
-            {{ metric.name }}:
-        </span>
-        <div 
-            ng-show="ctrl.panel.showLegendValues"
-            ng-repeat="info in metric.legendInfo | orderBy:ctrl.panel.legendSortBy | limitTo:ctrl.panel.legendMaxValues"
-            style="cursor: default; display:inline-block; margin-right:15px;"
-            ng-mouseenter="ctrl.selectLegendItem($event, info, metric);"
-            ng-mousemove="ctrl.showLegendTooltip($event, info);"
-            ng-mouseleave="ctrl.deselectLegend()"
-        >
-            <div class="graph-legend-icon">
-                <i class="fa fa-minus pointer" style="color: {{ ctrl.getColor(info.val) }}"></i>
-            </div>
-            <a class="graph-legend-alias pointer">{{ ctrl.getLegendDisplay(info, metric) }}</a>
-        </div>
-        <div ng-show="ctrl.panel.showTransitionCount" style="display:inline-block;">
-            &nbsp; Transitions: {{ metric.transitionCount }}
-        </div>
-        <div ng-show="ctrl.panel.showDistinctCount" style="display:inline-block;">
-            &nbsp; Distinct: {{ metric.distinctValuesCount }}
-        </div>
+<section ng-show="ctrl.panel.showLegend" class="dicrete-panel-legend">
+  <div ng-repeat="metric in ctrl.data" class="dicrete-panel-legend-item">
+    <span 
+      ng-show="ctrl.panel.showLegendNames" 
+      style="position: relative; top: -4px; cursor: pointer"
+      ng-mouseenter="ctrl.selectLegendMetric($event, metric);"
+      ng-mouseleave="ctrl.deselectLegend()"
+    >
+      {{ metric.name }}:
+    </span>
+    <div
+      ng-show="ctrl.panel.showLegendValues"
+      ng-repeat="info in metric.legendInfo | orderBy:ctrl.panel.legendSortBy | limitTo:ctrl.panel.legendMaxValues"
+      class="dicrete-panel-legend-item-value"
+      ng-mouseenter="ctrl.selectLegendItem($event, info, metric);"
+      ng-mousemove="ctrl.showLegendTooltip($event, info);"
+      ng-mouseleave="ctrl.deselectLegend()"
+    >
+      <div class="graph-legend-icon">
+        <i class="fa fa-minus pointer" style="color: {{ ctrl.getColor(info.val) }}"></i>
+      </div>
+      <a class="graph-legend-alias pointer">{{ ctrl.getLegendDisplay(info, metric) }}</a>
     </div>
+    <div ng-show="ctrl.panel.showTransitionCount" style="display:inline-block;">
+      &nbsp; Transitions: {{ metric.transitionCount }}
+    </div>
+    <div ng-show="ctrl.panel.showDistinctCount" style="display:inline-block;">
+      &nbsp; Distinct: {{ metric.distinctValuesCount }}
+    </div>
+  </div>
 </section>

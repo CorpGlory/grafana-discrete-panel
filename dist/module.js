@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/core/app_events', 'app/core/utils/kbn', 'app/core/utils/colors', 'lodash', 'moment', 'angular'], function (_export, _context) {
+System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/core/app_events', 'app/core/utils/kbn', 'app/core/utils/colors', 'lodash', 'moment', 'angular', './style.css!'], function (_export, _context) {
   "use strict";
 
   var CanvasPanelCtrl, DistinctPoints, config, appEvents, kbn, grafanaColors, _, moment, angular, _createClass, DiscretePanelCtrl;
@@ -54,7 +54,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
       moment = _moment.default;
     }, function (_angular) {
       angular = _angular.default;
-    }],
+    }, function (_styleCss) {}],
     execute: function () {
       _createClass = function () {
         function defineProperties(target, props) {
