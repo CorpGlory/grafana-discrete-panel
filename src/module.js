@@ -55,7 +55,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         sortBy: '-ms',
         layoutMode: 'sequence',
         percentDecimals: undefined,
-        textSize: 12
+        textSize: 13
       },
       metricNameColor: '#000000',
       valueTextColor: '#000000',
@@ -69,7 +69,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       writeMetricNames: false
     };
 
-    _.defaults(this.panel, panelDefaults);
+    _.defaultsDeep(this.panel, panelDefaults);
     this.externalPT = false;
 
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));

@@ -110,7 +110,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
               sortBy: '-ms',
               layoutMode: 'sequence',
               percentDecimals: undefined,
-              textSize: 12
+              textSize: 13
             },
             metricNameColor: '#000000',
             valueTextColor: '#000000',
@@ -124,7 +124,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
             writeMetricNames: false
           };
 
-          _.defaults(_this.panel, panelDefaults);
+          _.defaultsDeep(_this.panel, panelDefaults);
           _this.externalPT = false;
 
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));

@@ -1,7 +1,10 @@
 <div class="canvas-spot" style="width:100%;"></div>
 
 <section ng-show="ctrl.panel.legend.show" class="dicrete-panel-legend">
-  <div ng-repeat="metric in ctrl.data" class="dicrete-panel-legend-item">
+  <div ng-repeat="metric in ctrl.data" 
+    class="dicrete-panel-legend-item"
+    style="font-size: {{ ctrl.panel.legend.textSize }}px"
+  >
     <span
       class="dicrete-panel-label-name"
       ng-show="ctrl.panel.legend.showNames"
@@ -12,6 +15,7 @@
     </span>
     <div
       class="dicrete-panel-legend-item-value"
+      style="height: {{ ctrl.panel.legend.textSize }}px"
       ng-show="ctrl.panel.legend.showValues"
       ng-repeat="info in metric.legendInfo | orderBy:ctrl.panel.legend.sortBy | limitTo:ctrl.panel.legendMaxValues"
       ng-mouseenter="ctrl.selectLegendItem($event, info, metric);"
@@ -23,11 +27,11 @@
       </div>
       <a class="graph-legend-alias pointer">{{ ctrl.getLegendDisplay(info, metric) }}</a>
     </div>
-    <div ng-show="ctrl.panel.legend.showTransitionCount" style="display:inline-block;">
+    <span ng-show="ctrl.panel.legend.showTransitionCount">
       &nbsp; Transitions: {{ metric.transitionCount }}
-    </div>
-    <div ng-show="ctrl.panel.legend.showDistinctCount" style="display:inline-block;">
+    </span>
+    <span ng-show="ctrl.panel.legend.showDistinctCount">
       &nbsp; Distinct: {{ metric.distinctValuesCount }}
-    </div>
+    </span>
   </div>
 </section>
