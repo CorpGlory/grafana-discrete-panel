@@ -704,7 +704,6 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
         if(metric.columns[0].type !== 'time') {
           throw 'Expected a time column from the table format';
         }
-
         var last = null;
         for(var i = 1; i < metric.columns.length; i++) {
           var res = new DistinctPoints(metric.columns[i].text);
@@ -718,7 +717,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       } else {
         var res = new DistinctPoints(metric.target);
         _.forEach(metric.datapoints, point => {
-          res.add( point[1], this.formatValue(point[0]) );
+          res.add(point[1], this.formatValue(point[0]));
         });
         res.finish(this);
         data.push(res);

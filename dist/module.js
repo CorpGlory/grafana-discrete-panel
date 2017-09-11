@@ -744,7 +744,6 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
                 if (metric.columns[0].type !== 'time') {
                   throw 'Expected a time column from the table format';
                 }
-
                 var last = null;
                 for (var i = 1; i < metric.columns.length; i++) {
                   var res = new DistinctPoints(metric.columns[i].text);
