@@ -21,10 +21,10 @@ The main goal is to improve quality and make to it look and feel as [Graph Panel
   * Colors from Grafana's pallete
   * Styles of rects
   * Labels design & appereance:
-    * First \ last label styles and config for it, 
+    * First \ last label styles and config for it
     * Long labels inside rects bugfix
   * Zooming style
-* Remade canvas rendering from scratch: better performance and codebase
+* Canvas rendering rewritten from sratch. As a result better performance and overall code readability
 
 ## Live Demo
 
