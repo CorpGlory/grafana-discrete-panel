@@ -17,8 +17,13 @@ The main goal is to improve quality and make to it look and feel as [Graph Panel
 ## Improvemets
 
 * Retina rendering
-* Colors from Grafana's pallete
-* Better labels design & appereance
+* Better design
+  * Colors from Grafana's pallete
+  * Styles of rects
+  * Labels design & appereance:
+    * First \ last label styles and config for it, 
+    * Long labels inside rects bugfix
+  * Zooming style
 * Remade canvas rendering from scratch: better performance and codebase
 
 ## Live Demo
