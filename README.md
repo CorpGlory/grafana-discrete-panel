@@ -1,19 +1,45 @@
-## Discrete Panel
+# Discrete Panel
 
 Improved version of [NatelEnergy's Grafana Discrete Panel](https://github.com/NatelEnergy/grafana-discrete-panel)
 
 The main goal is to improve quality and make to it look and feel as [Graph Panel](http://docs.grafana.org/features/panels/graph/)
 
 
-### New features
+## Features
 
-#### Legend select
-#### Shared crosshair / tooltip
+### Legend select
+
+![Legend select dark](https://github.com/CorpGlory/grafana-ico-line-plugin/blob/master/src/screenshots/legend_select_dark.png)
+
+### Shared crosshair / tooltip
 
 
-### Improvemets
+
+## Improvemets
 
 * Retina rendering
 * Colors from Grafana's pallete
 * Better labels design & appereance
+
+## Live Demo
+
+http://grafana.corpglory.com/dashboard/db/discretetests
+
+<table>
+<tr>
+  <td> 
+    <b>Login</b> 
+  </td>
+  <td>test</td>
+</tr>
+<tr>
+  <td>
+    <b>Password</b>
+  </td>
+  <td>
+    testtest1
+  </td>
+</tr>
+</table>
+
 

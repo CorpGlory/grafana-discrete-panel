@@ -614,7 +614,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
             }
             body += moment.duration(info.ms).humanize();
             if (info.count > 1) {
-              body += "<br/>total";
+              body += " total";
             }
             body += "</center>";
 
