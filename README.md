@@ -28,7 +28,8 @@ The main goal is to improve quality and make to it look and feel as [Graph Panel
 
 ## Live Demo
 
-http://grafana.corpglory.com/dashboard/db/discretetests
+http://grafana.corpglory.com/dashboard/db/discretetests 
+works only on desktop
 
 <table>
 <tr>
