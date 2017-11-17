@@ -4,7 +4,6 @@ Improved version of [NatelEnergy's Grafana Discrete Panel](https://github.com/Na
 
 The main goal is to improve quality and make to it look and feel as [Graph Panel](http://docs.grafana.org/features/panels/graph/)
 
-
 ## Features
 
 ### Legend select
@@ -13,17 +12,24 @@ The main goal is to improve quality and make to it look and feel as [Graph Panel
 
 ### Crosshair select, Shared crosshair and better tooltip
 
-
+![Crosshair select dark](https://github.com/CorpGlory/grafana-discrete-panel/blob/master/src/screenshots/crosshair_select_dark.png)
 
 ## Improvemets
 
 * Retina rendering
-* Colors from Grafana's pallete
-* Better labels design & appereance
+* Better design
+  * Colors from Grafana's pallete
+  * Styles of rects
+  * Labels design & appereance:
+    * First \ last label styles and config for it
+    * Long labels inside rects bugfix
+  * Zooming style
+* Canvas rendering rewritten from sratch. As a result better performance and overall code readability
 
 ## Live Demo
 
-http://grafana.corpglory.com/dashboard/db/discretetests
+http://grafana.corpglory.com/dashboard/db/discretetests 
+works only on desktop
 
 <table>
 <tr>
