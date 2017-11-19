@@ -568,15 +568,13 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
               _.reverse(items);
             }
 
-            var singleMode = items.length == 1;
-
             _.each(items, function (point, i) {
 
               var from = point.start;
               var to = point.start + point.ms;
               var time = point.ms;
               var val = point.val;
-              if (!singleMode) {
+              if (_this6.panel.tooltip.shared) {
                 var seriesName = _this6.data[i].name;
               } else {
                 var seriesName = _this6.data[selectedIndex].name;
@@ -584,7 +582,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
 
               var color = _this6.getColor(val);
 
-              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex || singleMode ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + seriesName + ': ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this6.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this6.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
+              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex || !_this6.panel.tooltip.shared ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + seriesName + ': ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this6.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this6.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
             });
 
             var pageX = 0;
