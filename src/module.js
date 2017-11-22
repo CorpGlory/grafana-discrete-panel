@@ -523,14 +523,18 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     if(this._isTooltipOrderReversed) {
       _.reverse(items);
     }
-    
+
     _.each(items, (point, i) => {
 
       var from = point.start;
       var to = point.start + point.ms;
       var time = point.ms;
       var val = point.val;
-      var seriesName = this.data[i].name;
+      if(this.panel.tooltip.shared) {
+        var seriesName = this.data[i].name;
+      } else {
+        var seriesName = this.data[selectedIndex].name;
+      }
 
       var color = this.getColor(val);
 
@@ -538,7 +542,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       <div 
         class="
           graph-tooltip-list-item 
-          ${i == selectedIndex ? 'graph-tooltip-list-item--highlight' : ''}
+          ${(i == selectedIndex) || !this.panel.tooltip.shared ? 'graph-tooltip-list-item--highlight' : ''}
         "
       >
         <div class="graph-tooltip-series-name">
@@ -872,7 +876,7 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
       res.selected = j;
     } else {
       res.items = [j];
-      res.selected = 0;
+      res.selected = j;
     }
 
     return res;

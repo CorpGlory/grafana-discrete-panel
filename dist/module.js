@@ -574,11 +574,15 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
               var to = point.start + point.ms;
               var time = point.ms;
               var val = point.val;
-              var seriesName = _this6.data[i].name;
+              if (_this6.panel.tooltip.shared) {
+                var seriesName = _this6.data[i].name;
+              } else {
+                var seriesName = _this6.data[selectedIndex].name;
+              }
 
               var color = _this6.getColor(val);
 
-              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + seriesName + ': ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this6.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this6.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
+              body += '\n      <div \n        class="\n          graph-tooltip-list-item \n          ' + (i == selectedIndex || !_this6.panel.tooltip.shared ? 'graph-tooltip-list-item--highlight' : '') + '\n        "\n      >\n        <div class="graph-tooltip-series-name">\n          <i class="fa fa-minus" style="color:' + color + '"></i>\n          ' + seriesName + ': ' + val + '\n        </div>\n        <div class="graph-tooltip-value">\n          ' + _this6.dashboard.formatDate(moment(from)) + '\n          to\n          ' + _this6.dashboard.formatDate(moment(to)) + '\n          (' + moment.duration(time).humanize() + ');\n        </div>\n      </div>\n      ';
             });
 
             var pageX = 0;
@@ -912,7 +916,7 @@ System.register(['./canvas-panel', './distinct-points', 'app/core/config', 'app/
               res.selected = j;
             } else {
               res.items = [j];
-              res.selected = 0;
+              res.selected = j;
             }
 
             return res;
