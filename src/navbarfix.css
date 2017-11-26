@@ -1,0 +1,9 @@
+.main-view {
+  padding-top: 53px
+}
+
+.navbar {
+  position: fixed;
+  width: 100%;
+  top: 0px;
+}
