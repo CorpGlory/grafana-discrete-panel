@@ -136,6 +136,7 @@ System.register(['./canvas-panel', './distinct-points', './tools', 'app/core/con
 
           _this.updateColorInfo();
           _this.onConfigChanged();
+          _this.initStyles();
           return _this;
         }
 
@@ -143,9 +144,8 @@ System.register(['./canvas-panel', './distinct-points', './tools', 'app/core/con
           key: 'initStyles',
           value: function initStyles() {
             if (mobileAndTabletcheck()) {
-              console.log("hey");
+              System.import(this.panelPath + 'navbarfix.css!');
             }
-            console.log('what');
           }
         }, {
           key: 'onDataError',
