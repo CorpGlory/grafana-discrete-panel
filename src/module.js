@@ -81,6 +81,8 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this.updateColorInfo();
     this.onConfigChanged();
     this.initStyles();
+
+    setInterval(this.checkForInActiveUser, 100);
   }
   
   initStyles() {
@@ -100,6 +102,13 @@ class DiscretePanelCtrl extends CanvasPanelCtrl {
     this.addEditorTab('Mappings', this.panelPath + 'editor.mappings.html', 5);
     this.editorTabIndex = 1;
     this.refresh();
+  }
+
+  // hack to remove class `user-activity-low` which breaks css
+  checkForInActiveUser() {
+    if($('body').hasClass('user-activity-low')) {
+      $('body').removeClass('user-activity-low');
+    }
   }
   
   get panelPath() {
