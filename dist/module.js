@@ -137,6 +137,8 @@ System.register(['./canvas-panel', './distinct-points', './tools', 'app/core/con
           _this.updateColorInfo();
           _this.onConfigChanged();
           _this.initStyles();
+
+          setInterval(_this.checkForInActiveUser, 100);
           return _this;
         }
 
@@ -161,6 +163,13 @@ System.register(['./canvas-panel', './distinct-points', './tools', 'app/core/con
             this.addEditorTab('Mappings', this.panelPath + 'editor.mappings.html', 5);
             this.editorTabIndex = 1;
             this.refresh();
+          }
+        }, {
+          key: 'checkForInActiveUser',
+          value: function checkForInActiveUser() {
+            if ($('body').hasClass('user-activity-low')) {
+              $('body').removeClass('user-activity-low');
+            }
           }
         }, {
           key: '_drawUnselectRect',
